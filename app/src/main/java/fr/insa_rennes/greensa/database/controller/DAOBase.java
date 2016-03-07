@@ -1,7 +1,9 @@
-package fr.insa_rennes.greensa.database;
+package fr.insa_rennes.greensa.database.controller;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+
+import fr.insa_rennes.greensa.database.DatabaseHandler;
 
 /**
  * Created by Antoine on 07/03/2016.
@@ -27,7 +29,7 @@ public abstract class DAOBase {
         mDb = mHandler.getWritableDatabase();
         return mDb;
     }
-    
+
     public void close() {
         mDb.close();
     }
