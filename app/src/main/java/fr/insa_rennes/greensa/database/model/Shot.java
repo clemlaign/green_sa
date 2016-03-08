@@ -8,8 +8,8 @@ public class Shot {
 
     private int id, id_parcours, id_club;
     private float coordLat_start, coordLong_start;
-    private float coordLatTheo_end, getCoordLongTheo_end;
-    private float coordLatReal_end, getCoordLongReal_end;
+    private float coordLatTheo_end, getCoordLongTheo_end; // coordonnées que l'on souhaite atteindre
+    private float coordLatReal_end, getCoordLongReal_end; // coordonnées réelles atteintes
 
     public Shot(int id, int id_parcours, int id_club, float coordLat_start, float coordLong_start, float coordLatTheo_end, float getCoordLongTheo_end, float coordLatReal_end, float getCoordLongReal_end) {
         this.id = id;
@@ -22,6 +22,8 @@ public class Shot {
         this.coordLatReal_end = coordLatReal_end;
         this.getCoordLongReal_end = getCoordLongReal_end;
     }
+
+
 
     public int getId() {
         return id;
@@ -47,37 +49,12 @@ public class Shot {
         this.id_club = id_club;
     }
 
-    public float getCoordLatTheo_end() {
-        return coordLatTheo_end;
+    public float getCoordLat_start() {
+        return coordLat_start;
     }
 
-    public void setCoordLatTheo_end(float coordLatTheo_end) {
-        this.coordLatTheo_end = coordLatTheo_end;
-    }
-
-
-    public float getGetCoordLongReal_end() {
-        return getCoordLongReal_end;
-    }
-
-    public void setGetCoordLongReal_end(float getCoordLongReal_end) {
-        this.getCoordLongReal_end = getCoordLongReal_end;
-    }
-
-    public float getCoordLatReal_end() {
-        return coordLatReal_end;
-    }
-
-    public void setCoordLatReal_end(float coordLatReal_end) {
-        this.coordLatReal_end = coordLatReal_end;
-    }
-
-    public float getGetCoordLongTheo_end() {
-        return getCoordLongTheo_end;
-    }
-
-    public void setGetCoordLongTheo_end(float getCoordLongTheo_end) {
-        this.getCoordLongTheo_end = getCoordLongTheo_end;
+    public void setCoordLat_start(float coordLat_start) {
+        this.coordLat_start = coordLat_start;
     }
 
     public float getCoordLong_start() {
@@ -88,12 +65,36 @@ public class Shot {
         this.coordLong_start = coordLong_start;
     }
 
-    public float getCoordLat_start() {
-        return coordLat_start;
+    public float getCoordLatTheo_end() {
+        return coordLatTheo_end;
     }
 
-    public void setCoordLat_start(float coordLat_start) {
-        this.coordLat_start = coordLat_start;
+    public void setCoordLatTheo_end(float coordLatTheo_end) {
+        this.coordLatTheo_end = coordLatTheo_end;
+    }
+
+    public float getCoordLongTheo_end() {
+        return getCoordLongTheo_end;
+    }
+
+    public void setCoordLongTheo_end(float getCoordLongTheo_end) {
+        this.getCoordLongTheo_end = getCoordLongTheo_end;
+    }
+
+    public float getCoordLatReal_end() {
+        return coordLatReal_end;
+    }
+
+    public void setCoordLatReal_end(float coordLatReal_end) {
+        this.coordLatReal_end = coordLatReal_end;
+    }
+
+    public float getCoordLongReal_end() {
+        return getCoordLongReal_end;
+    }
+
+    public void setCoordLongReal_end(float getCoordLongReal_end) {
+        this.getCoordLongReal_end = getCoordLongReal_end;
     }
 
 }

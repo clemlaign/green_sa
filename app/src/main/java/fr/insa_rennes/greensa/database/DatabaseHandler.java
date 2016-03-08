@@ -22,14 +22,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     "id_club INTEGER, "+
                     "coordLat_start REAL, "+
                     "coordLong_start REAL, "+
-                    "coordLatTheo_end REAL, +"+
+                    "coordLatTheo_end REAL, "+
                     "coordLongTheo_end REAL, "+
                     "coordLatReal_end REAL, "+
                     "coordLongReal_end REAL);";
 
     public static final String COURSE_TABLE_CREATE =
             "CREATE TABLE " + COURSE_TABLE_NAME + " (" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "id INTEGER, " +
                     "id_hole INTEGER, " +
                     "coordLat_hole REAL, "+
                     "coordLong_hole REAL);";
