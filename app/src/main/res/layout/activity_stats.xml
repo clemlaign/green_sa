@@ -7,4 +7,241 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="fr.insa_rennes.greensa.Stats">
 
+    <!-- HEADER NAVIGATION -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/green"
+        android:baselineAligned="false"
+        android:id="@+id/header">
+        <LinearLayout
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal">
+            <ImageButton
+                android:id="@+id/returnButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:src="@drawable/fleche_retour"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_weight="3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent">
+            <TextView
+                android:textColor="@color/black"
+                android:id="@+id/heading_text"
+                android:textSize="20dp"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:gravity="center"
+                android:text="@string/stats_header" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal">
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:src="@drawable/home"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- BODY -->
+    <LinearLayout
+        android:layout_below="@id/header"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="50dp"
+        android:background="@drawable/background">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/scrollView">
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="10dp">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginLeft="15dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:textColor="@color/black"
+                        android:text="Nombre de tires totaux : 1000"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:textColor="@color/black"
+                        android:text="Dernier tir enregistré le : 09/03/2016"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/black"
+                        android:text="AUTRE blablabla ...\n...\n...\n..."/>
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <Button
+                        android:layout_width="200dp"
+                        android:layout_height="wrap_content"
+                        android:text="Tableaux des scores"
+                        android:id="@+id/tab_scores"/>
+
+                    <Button
+                        android:layout_width="200dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Supprimer les stats"
+                        android:id="@+id/reset"/>
+
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- FOOTER NAVIGATION -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:id="@+id/footer_border"
+
+        android:background="@color/green"
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_above="@+id/footer" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:background="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:baselineAligned="false"
+        android:id="@+id/footer">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:id="@+id/tab1">
+            <ImageButton
+                android:id="@+id/generalStats"
+                android:layout_weight="2"
+                android:layout_height="0dp"
+                android:layout_width="match_parent"
+                android:background="@color/white"
+                android:src="@drawable/ic_icon1"
+                android:clickable="true"
+                android:fontFamily="sans-serif-light" />
+             <TextView
+                 android:gravity="center"
+                 android:layout_weight="1"
+                 android:textColor="@color/black"
+                 android:textSize="8dp"
+                 android:layout_height="0dp"
+                 android:layout_width="match_parent"
+                 android:text="Général" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:id="@+id/tab2">
+            <ImageButton
+                android:id="@+id/distanceStats"
+                android:layout_weight="2"
+                android:layout_height="0dp"
+                android:layout_width="match_parent"
+                android:background="@color/white"
+                android:src="@drawable/ic_icon2"
+                android:clickable="true"
+                android:fontFamily="sans-serif-light" />
+             <TextView
+                 android:gravity="center"
+                 android:layout_weight="1"
+                 android:textColor="@color/black"
+                 android:textSize="8dp"
+                 android:layout_height="0dp"
+                 android:layout_width="match_parent"
+                 android:text="Distance" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:id="@+id/tab3">
+            <ImageButton
+                android:id="@+id/assosB"
+                android:layout_weight="2"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:background="@color/white"
+                android:src="@drawable/ic_icon3"
+                android:clickable="true"
+                android:fontFamily="sans-serif-light" />
+            <TextView
+                android:gravity="center"
+                android:layout_weight="1"
+                android:textColor="@color/black"
+                android:textSize="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="Angle" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:id="@+id/tab4">
+            <ImageButton
+                android:id="@+id/profilB"
+                android:layout_weight="2"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:background="@color/white"
+                android:src="@drawable/ic_icon4"
+                android:clickable="true"
+                android:fontFamily="sans-serif-light" />
+            <TextView
+                android:gravity="center"
+                android:layout_weight="1"
+                android:textColor="@color/black"
+                android:textSize="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="AUTRE STAT" />
+
+        </LinearLayout>
+    </LinearLayout>
 </RelativeLayout>

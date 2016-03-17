@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Greensa</string>
+    <string name="stats_header">Statistiques</string>
 </resources>

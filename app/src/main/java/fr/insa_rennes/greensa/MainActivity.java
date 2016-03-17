@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.Button;
 
 import fr.insa_rennes.greensa.database.controller.CourseDAO;
 import fr.insa_rennes.greensa.database.model.Course;
@@ -23,9 +23,9 @@ public class MainActivity extends Activity {
         coursebd.close();
         */
 
-        TextView newGame = (TextView)findViewById(R.id.newGame);
-        TextView stats = (TextView)findViewById(R.id.stats);
-        TextView help = (TextView)findViewById(R.id.help);
+        Button newGame = (Button)findViewById(R.id.newGame);
+        Button stats = (Button)findViewById(R.id.stats);
+        Button help = (Button)findViewById(R.id.help);
 
         stats.setOnClickListener(new View.OnClickListener() {
 
