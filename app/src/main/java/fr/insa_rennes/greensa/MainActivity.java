@@ -35,5 +35,13 @@ public class MainActivity extends Activity {
             }
 
         });
+
+        newGame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent activity = new Intent(MainActivity.this, MapsActivity.class);
+                startActivity(activity);
+            }
+        });
     }
 }
