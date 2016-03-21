@@ -25,6 +25,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
+        ImageButton returnButton = (ImageButton)findViewById(R.id.returnButton);
+
+        returnButton.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View v) {
+                Intent activity = new Intent(MapsActivity.this, MainActivity.class);
+                startActivity(activity);
+            }
+
+        });
     }
 
     /**
@@ -46,14 +58,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
-    ImageButton returnButton = (ImageButton)findViewById(R.id.returnButton);
-
-    returnButton.setOnClickListener(new View.OnClickListener() {
-
-        public void onClick(View v) {
-            Intent activity = new Intent(MapsActivity.this, MainActivity.class);
-            startActivity(activity);
-        }
-
-    });
+    protected boolean isRouteDisplayed() {
+        return false;
+    }
 }
