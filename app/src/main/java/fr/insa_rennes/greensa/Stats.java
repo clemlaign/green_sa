@@ -6,8 +6,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 
-import fr.insa_rennes.greensa.database.graphStats;
-
 /*
 Activité page d'accueil des statistiques
  */

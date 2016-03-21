@@ -5,7 +5,7 @@
     android:paddingRight="0dp"
     android:paddingTop="0dp"
     android:paddingBottom="0dp"
-    tools:context="fr.insa_rennes.greensa.database.graphStats">
+    tools:context="fr.insa_rennes.greensa.graphStats">
 
     <!-- HEADER NAVIGATION -->
     <LinearLayout

@@ -2,4 +2,8 @@
     <string name="app_name">Greensa</string>
     <string name="stats_header">Statistiques</string>
     <string name="title_activity_maps">Map</string>
+
+    <string name="dummy_section_text">Section %1d is just a dummy section.</string>
+    <string name="demo_external_activity">Demo External Activity</string>
+    <string name="demo_collection">Demo Collection</string>
 </resources>

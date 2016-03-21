@@ -27,7 +27,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
 
-        ImageButton returnButton = (ImageButton)findViewById(R.id.returnButton);
+        /*ImageButton returnButton = (ImageButton)findViewById(R.id.returnButton);
 
         returnButton.setOnClickListener(new View.OnClickListener() {
 
@@ -36,7 +36,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 startActivity(activity);
             }
 
-        });
+        });*/
     }
 
     /**
