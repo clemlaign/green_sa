@@ -1,4 +1,4 @@
-package fr.insa_rennes.greensa;
+package fr.insa_rennes.greensa.stats;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -18,7 +18,6 @@ import android.widget.Spinner;
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
 import org.achartengine.chart.BarChart;
-import org.achartengine.chart.PointStyle;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
@@ -26,6 +25,9 @@ import org.achartengine.renderer.XYSeriesRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import fr.insa_rennes.greensa.MainActivity;
+import fr.insa_rennes.greensa.R;
 
 public class graphStats extends Activity {
 
@@ -50,6 +52,8 @@ public class graphStats extends Activity {
 
         ImageButton returnButton = (ImageButton)findViewById(R.id.returnButton);
         ImageButton generalStats = (ImageButton)findViewById(R.id.generalStats);
+        ImageButton distance = (ImageButton)findViewById(R.id.distanceStats);
+        ImageButton angle = (ImageButton)findViewById(R.id.angleStats);
         Button caract = (Button)findViewById(R.id.caracteristiques);
 
         returnButton.setOnClickListener(new View.OnClickListener() {
@@ -79,6 +83,34 @@ public class graphStats extends Activity {
 
         });
 
+        distance.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View v) {
+                showDistance();
+            }
+
+        });
+
+        angle.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View v) {
+                showAngle();
+            }
+
+        });
+
+        Intent intent = getIntent();
+        ChoixStat cs = (ChoixStat) intent.getSerializableExtra("choix");
+        if(cs == null)
+            cs = ChoixStat.Distance;
+
+        ChoixStat d = ChoixStat.Distance;
+        ChoixStat a = ChoixStat.Angle;
+        if(cs.ordinal() == d.ordinal())
+            showDistance();
+        else if(cs.ordinal() == a.ordinal())
+            showAngle();
+/*
         XYSeries series = new XYSeries("London Temperature hourly");
         int hour;
         for (hour=0;hour<24;hour++) {
@@ -129,8 +161,8 @@ public class graphStats extends Activity {
 
         chartView = ChartFactory.getLineChartView(graphStats.this, mDataset, mRenderer);
 
-        LinearLayout chartLyt = (LinearLayout)findViewById(R.id.chart);
-        chartLyt.addView(chartView);
+        LinearLayout chartLyt = (LinearLayout)findViewById(R.id.graph);
+        chartLyt.addView(chartView);*/
     }
 
     protected Dialog onCreateDialog(int id) {
@@ -219,25 +251,21 @@ public class graphStats extends Activity {
     }
 
     private void openChart(){
+        String[] shortDistance = {"0-10", "10-15", "15-20", "20-25", "25-30", "30-35", "35-40", "40-45", "45-50", "50-55", "55-60"};
+        String[] longDistance = {"50-60", "60-70", "70-80", "80-100", "100-120", "120-140", "140-160", "160-180", "180-200", ">200"};
         int[] x = { 0,1,2,3,4,5,6,7, 8, 9, 10, 11 };
-        int[] income = { 2000,2500,2700,3000,2800,3500,3700,3800, 0,0,0,0};
+        int[] income = { 2000,2500,2700,3000,2800,3500,3700,3800, 0,0,0};
         int[] expense = {2200, 2700, 2900, 2800, 2600, 3000, 3300, 3400, 0, 0, 0, 0 };
 
         // Creating an XYSeries for Income
-        XYSeries incomeSeries = new XYSeries("Income");
-        // Creating an XYSeries for Expense
-        XYSeries expenseSeries = new XYSeries("Expense");
-        // Adding data to Income and Expense Series
-        for(int i=0;i<x.length;i++){
-            incomeSeries.add(i,income[i]);
-            expenseSeries.add(i,expense[i]);
+        XYSeries shortSeries = new XYSeries("Distance");
+        for(int i=0;i<shortDistance.length;i++){
+            shortSeries.add(i,income[i]);
         }
         // Creating a dataset to hold each series
         XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
-        // Adding Income Series to the dataset
-        dataset.addSeries(incomeSeries);
-        // Adding Expense Series to dataset
-        dataset.addSeries(expenseSeries);
+        // Adding short Series to the dataset
+        dataset.addSeries(shortSeries);
 
         // Creating XYSeriesRenderer to customize incomeSeries
         XYSeriesRenderer incomeRenderer = new XYSeriesRenderer();
@@ -246,28 +274,30 @@ public class graphStats extends Activity {
         incomeRenderer.setLineWidth(2);
         incomeRenderer.setDisplayChartValues(true);
         incomeRenderer.setDisplayChartValuesDistance(10); //setting chart value distance
+
         // Creating XYSeriesRenderer to customize expenseSeries
-        XYSeriesRenderer expenseRenderer = new XYSeriesRenderer();
+        /*XYSeriesRenderer expenseRenderer = new XYSeriesRenderer();
         expenseRenderer.setColor(Color.GREEN);
         expenseRenderer.setFillPoints(true);
         expenseRenderer.setLineWidth(2);
-        expenseRenderer.setDisplayChartValues(true);
+        expenseRenderer.setDisplayChartValues(true);*/
+
         // Creating a XYMultipleSeriesRenderer to customize the whole chart
         XYMultipleSeriesRenderer multiRenderer = new XYMultipleSeriesRenderer();
         multiRenderer.setOrientation(XYMultipleSeriesRenderer.Orientation.HORIZONTAL);
         multiRenderer.setXLabels(0);
-        multiRenderer.setChartTitle("Income vs Expense Chart");
-        multiRenderer.setXTitle("Year 2014");
-        multiRenderer.setYTitle("Amount in Dollars");
+        multiRenderer.setChartTitle("Distance de tirs courts");
+        multiRenderer.setXTitle("Distance");
+        multiRenderer.setYTitle("Nombre de tirs");
         /***
          * Customizing graphs
          */
         //setting text size of the title
-        multiRenderer.setChartTitleTextSize(28);
+        multiRenderer.setChartTitleTextSize(30);
         //setting text size of the axis title
-        multiRenderer.setAxisTitleTextSize(24);
+        multiRenderer.setAxisTitleTextSize(30);
         //setting text size of the graph lable
-        multiRenderer.setLabelsTextSize(24);
+        multiRenderer.setLabelsTextSize(30);
         //setting zoom buttons visiblity
         multiRenderer.setZoomButtonsVisible(false);
         //setting pan enablity which uses graph to move on both axis
@@ -318,21 +348,33 @@ public class graphStats extends Activity {
         multiRenderer.setApplyBackgroundColor(true);
         //setting the margin size for the graph in the order top, left, bottom, right
         multiRenderer.setMargins(new int[]{30, 30, 30, 30});
-        for(int i=0; i< x.length;i++){
-            multiRenderer.addXTextLabel(i, mMonth[i]);
+        for(int i=0; i< shortDistance.length;i++){
+            multiRenderer.addXTextLabel(i, shortDistance[i]);
         }
         // Adding incomeRenderer and expenseRenderer to multipleRenderer
         // Note: The order of adding dataseries to dataset and renderers to multipleRenderer
         // should be same
         multiRenderer.addSeriesRenderer(incomeRenderer);
-        multiRenderer.addSeriesRenderer(expenseRenderer);
+        //multiRenderer.addSeriesRenderer(expenseRenderer);
         //this part is used to display graph on the xml
-        LinearLayout chartContainer = (LinearLayout) findViewById(R.id.chart);
+        LinearLayout chartContainer = (LinearLayout) findViewById(R.id.graph);
         //remove any views before u paint the chart
-        chartContainer.removeAllViews();
+        //chartContainer.removeAllViews();
         //drawing bar chart
         mChart = ChartFactory.getBarChartView(graphStats.this, dataset, multiRenderer, BarChart.Type.DEFAULT);
         //adding the view to the linearlayout
         chartContainer.addView(mChart);
+        Button b = new Button(this);
+        chartContainer.addView(b);
+    }
+
+    public void showDistance(){
+        openChart();
+    }
+
+    public void showAngle(){
+        LinearLayout chartContainer = (LinearLayout) findViewById(R.id.graph);
+        //remove any views before u paint the chart
+        chartContainer.removeAllViews();
     }
 }

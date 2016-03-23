@@ -4,6 +4,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import fr.insa_rennes.greensa.database.model.Course;
 
 /**
@@ -35,21 +38,21 @@ public class CourseDAO extends DAOBase {
     /**
      * @param id l'identifiant du parcours à supprimer
      */
-    public void supprimer(int id) {
+    public void delete(int id) {
 
     }
 
     /**
      * @param s le parcours modifié
      */
-    public void modifier(Course s) {
+    public void update(Course s) {
 
     }
 
     /**
      * @param id l'identifiant du parcours à récupérer
      */
-    public Course selectionner(int id) {
+    public Course select(int id) {
         Cursor c = mDb.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE id=?", new String[]{Integer.toString(id)});
 
         if (c != null)
@@ -58,5 +61,18 @@ public class CourseDAO extends DAOBase {
         Course course = new Course(c.getInt(0), c.getInt(1), c.getFloat(2), c.getFloat(3));
 
         return course;
+    }
+
+    public List<Course> selectElements(String query, String[] var){
+        List<Course> list = new ArrayList<Course>();
+
+        Cursor c = mDb.rawQuery(query, var);
+
+        while(c.moveToNext()){
+            list.add(new Course(c.getInt(0), c.getInt(1), c.getFloat(2), c.getFloat(3)));
+        }
+        c.close();
+
+        return list;
     }
 }

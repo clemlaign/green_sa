@@ -15,10 +15,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String SHOT_TABLE_NAME = "Shot";
     public static final String COURSE_TABLE_NAME = "Course";
 
+    // FOREIGN KEY REFERENCES Course(id)
     public static final String SHOT_TABLE_CREATE =
             "CREATE TABLE " + SHOT_TABLE_NAME + " (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    "id_course INTEGER FOREIGN KEY REFERENCES Course(id), " +
+                    "id_course INTEGER, " +
                     "id_club INTEGER, "+
                     "coordLat_start REAL, "+
                     "coordLong_start REAL, "+
