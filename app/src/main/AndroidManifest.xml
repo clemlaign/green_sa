@@ -18,10 +18,11 @@
         <uses-library android:name="com.google.android.maps" />
 
         <uses-permission android:name="android.permission.INTERNET" />
+        <!-- permision access coarse location sera utile-->
 
         <activity android:name=".MainActivity"></activity>
         <activity android:name=".Stats"></activity>
-        <activity android:name=".database.graphStats">
+        <activity android:name=".graphStats">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -41,7 +42,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name=".map.MapsActivity"
             android:label="@string/title_activity_maps"></activity>
     </application>
 

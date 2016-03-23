@@ -1,4 +1,4 @@
-package fr.insa_rennes.greensa.database;
+package fr.insa_rennes.greensa;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -23,10 +23,6 @@ import org.achartengine.renderer.XYSeriesRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import fr.insa_rennes.greensa.MainActivity;
-import fr.insa_rennes.greensa.R;
-import fr.insa_rennes.greensa.Stats;
 
 public class graphStats extends Activity {
 

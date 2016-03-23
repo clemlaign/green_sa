@@ -6,8 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import fr.insa_rennes.greensa.database.controller.CourseDAO;
-import fr.insa_rennes.greensa.database.model.Course;
+import fr.insa_rennes.greensa.map.MapsActivity;
 
 public class MainActivity extends Activity {
 
