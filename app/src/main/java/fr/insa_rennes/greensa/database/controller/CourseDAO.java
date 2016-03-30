@@ -7,6 +7,12 @@ import android.database.Cursor;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import fr.insa_rennes.greensa.database.model.Course;
 
 /**
@@ -38,21 +44,21 @@ public class CourseDAO extends DAOBase {
     /**
      * @param id l'identifiant du parcours à supprimer
      */
-    public void delete(int id) {
+    public void supprimer(int id) {
 
     }
 
     /**
      * @param s le parcours modifié
      */
-    public void update(Course s) {
+    public void modifier(Course s) {
 
     }
 
     /**
      * @param id l'identifiant du parcours à récupérer
      */
-    public Course select(int id) {
+    public Course selectionner(int id) {
         Cursor c = mDb.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE id=?", new String[]{Integer.toString(id)});
 
         if (c != null)
@@ -74,5 +80,44 @@ public class CourseDAO extends DAOBase {
         c.close();
 
         return list;
+    }
+
+    /**
+     *
+     * @param context
+     * @return
+     *  Lis le fichier des trous (à modifier pour récupérer les infos sous forme de tableau)
+     */
+    public String ReadSettings(Context context){
+        FileInputStream fIn = null;
+        InputStreamReader isr = null;
+
+        char[] inputBuffer = new char[255];
+        String data = null;
+
+
+        InputStream in = null;
+        try {
+            in = context.getAssets().open("holes.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        StringBuilder sb = new StringBuilder(1024);
+        String line;
+
+        try {
+            while((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        data = sb.toString();
+
+        return data;
     }
 }
