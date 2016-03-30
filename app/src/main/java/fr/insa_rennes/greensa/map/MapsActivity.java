@@ -1,21 +1,28 @@
 package fr.insa_rennes.greensa.map;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.location.Criteria;
+import android.location.LocationManager;
+import android.location.LocationProvider;
+import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.Overlay;
-import com.google.android.maps.OverlayItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +45,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
 
-        /*ImageButton returnButton = (ImageButton)findViewById(R.id.returnButton);
+        ImageButton returnButton = (ImageButton) findViewById(R.id.returnButton);
 
         returnButton.setOnClickListener(new View.OnClickListener() {
 
@@ -47,7 +54,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 startActivity(activity);
             }
 
-        });*/
+        });
+
     }
 
     /**
@@ -63,22 +71,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        ArrayList<Overlay> mapOverlays = new ArrayList<Overlay>();
-        Drawable drawable = this.getResources().getDrawable(android.R.drawable.star_big_on);
-        MapOverlay itemizedOverlay = new MapOverlay(drawable, this);
-        GeoPoint geoPoint = new GeoPoint((int)48.067650,(int)-1.746380);
-        OverlayItem overlayitem = new OverlayItem(geoPoint, "Hello", "Sample Overlay item");
-
-        itemizedOverlay.addOverlay(overlayitem);
-        mapOverlays.add(itemizedOverlay);
-
-        //OverlayItem m1 = new OverlayItem(new GeoPoint((int)48.068059, (int)-1.745856), "Trou 1", "1er trou du parcourt");
-        //moMap.addOverlay(m1);
         LatLng golf = new LatLng(48.067616, -1.746352);
+        LatLng trou1 = new LatLng(48.068060, -1.745856);
+
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(new LatLng((golf.latitude + trou1.latitude)/2,(golf.longitude + trou1.longitude)/2))
+                .bearing(30)
+                .tilt(20)
+                .zoom(19)
+                .build();
 
         mMap.addMarker(new MarkerOptions().position(golf).title("Départ"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(golf));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(19));
+        mMap.addMarker(new MarkerOptions().position(trou1).title("Trou1"));
+        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
 
     }

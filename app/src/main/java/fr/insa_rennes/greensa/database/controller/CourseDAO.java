@@ -4,6 +4,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import fr.insa_rennes.greensa.database.model.Course;
 
 /**
@@ -58,5 +64,44 @@ public class CourseDAO extends DAOBase {
         Course course = new Course(c.getInt(0), c.getInt(1), c.getFloat(2), c.getFloat(3));
 
         return course;
+    }
+
+    /**
+     *
+     * @param context
+     * @return
+     *  Lis le fichier des trous (à modifier pour récupérer les infos sous forme de tableau)
+     */
+    public String ReadSettings(Context context){
+        FileInputStream fIn = null;
+        InputStreamReader isr = null;
+
+        char[] inputBuffer = new char[255];
+        String data = null;
+
+
+        InputStream in = null;
+        try {
+            in = context.getAssets().open("holes.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        StringBuilder sb = new StringBuilder(1024);
+        String line;
+
+        try {
+            while((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        data = sb.toString();
+
+        return data;
     }
 }
