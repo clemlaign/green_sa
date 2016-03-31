@@ -37,7 +37,7 @@ public class Stats extends Activity {
 
             public void onClick(View v) {
                 Intent activity = new Intent(Stats.this, graphStats.class);
-                activity.putExtra("choix", ChoixStat.Distance);
+                activity.putExtra("choix", graphStats.DISTANCE);
                 startActivity(activity);
             }
 
@@ -47,7 +47,7 @@ public class Stats extends Activity {
 
             public void onClick(View v) {
                 Intent activity = new Intent(Stats.this, graphStats.class);
-                activity.putExtra("choix", ChoixStat.Angle);
+                activity.putExtra("choix", graphStats.ANGLE);
                 startActivity(activity);
             }
 

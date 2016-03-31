@@ -6,15 +6,17 @@ package fr.insa_rennes.greensa.database.model;
  */
 public class Course {
 
-    private int id, id_hole;
-    private float coordLat_hole;
-    private float coordLong_hole;
+    private int id, par;
+    private String name;
+    private Hole[] holes;
 
-    public Course(int id, int id_hole, float coordLat_hole, float coordLong_hole) {
+    public Course(int id, int par, String name, Hole[] holes, int size) {
         this.id = id;
-        this.id_hole = id_hole;
-        this.coordLat_hole = coordLat_hole;
-        this.coordLong_hole = coordLong_hole;
+        this.par = par;
+        this.name = name;
+        this.holes = new Hole[size];
+        for(int i=0; i<this.holes.length; i++)
+            this.holes[i] = holes[i];
     }
 
     public int getId() {
@@ -25,28 +27,19 @@ public class Course {
         this.id = id;
     }
 
-    public int getId_hole() {
-        return id_hole;
+    public String getName() {
+        return name;
     }
 
-    public void setId_hole(int id_hole) {
-        this.id_hole = id_hole;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public float getCoordLat_hole() {
-        return coordLat_hole;
+    public Hole[] getHoles() {
+        return holes;
     }
 
-    public void setCoordLat_hole(float coordLat_hole) {
-        this.coordLat_hole = coordLat_hole;
+    public void setHoles(Hole[] holes) {
+        this.holes = holes;
     }
-
-    public float getCoordLong_hole() {
-        return coordLong_hole;
-    }
-
-    public void setCoordLong_hole(float coordLong_hole) {
-        this.coordLong_hole = coordLong_hole;
-    }
-
 }

@@ -6,12 +6,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import java.util.List;
-
-import fr.insa_rennes.greensa.database.controller.CourseDAO;
-import fr.insa_rennes.greensa.database.model.Course;
+import fr.insa_rennes.greensa.database.CoursesLoader;
 import fr.insa_rennes.greensa.stats.Stats;
 import fr.insa_rennes.greensa.map.MapsActivity;
+import fr.insa_rennes.greensa.stats.graphStats;
 
 public class MainActivity extends Activity {
 
@@ -20,12 +18,9 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /*
-        CourseDAO coursebd = new CourseDAO(this);
-        coursebd.open();
-        coursebd.ajouter(new Course(2,9, 0.5f, 0.5f));
-        coursebd.close();
-        */
+        // Chargement des parcours
+        if(!CoursesLoader.isLoaded())
+            CoursesLoader.loadCoursesFromFile(this, "holes.txt");
 
         Button newGame = (Button)findViewById(R.id.newGame);
         Button stats = (Button)findViewById(R.id.stats);
@@ -34,7 +29,7 @@ public class MainActivity extends Activity {
         stats.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-                Intent activity = new Intent(MainActivity.this, Stats.class);
+                Intent activity = new Intent(MainActivity.this, graphStats.class);
                 startActivity(activity);
             }
 

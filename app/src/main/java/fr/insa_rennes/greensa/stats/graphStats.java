@@ -7,11 +7,14 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
@@ -33,28 +36,38 @@ public class graphStats extends Activity {
 
     private Dialog dialog;
     private Spinner listeClub, listeParcours, listeDate;
-    private XYMultipleSeriesRenderer mRenderer;
-    private XYSeriesRenderer renderer;
-    private XYSeries mCurrentSeries;
-    private XYMultipleSeriesDataset mDataset;
-    private GraphicalView chartView;
-    private View mChart;
+    private List<View> mChart;
 
-    private String[] mMonth = new String[] {
-            "Jan", "Feb" , "Mar", "Apr", "May", "Jun",
-            "Jul", "Aug" , "Sep", "Oct", "Nov", "Dec"
-    };
+    private ImageView leftArrow = null;
+    private ImageView rightArrow = null;
+
+    private int stat; // prend la valeur DISTANCE ou ANGLE
+    private int currentChart; // id du graphique affiché
+
+    private static final int SWIPE_MIN_DISTANCE = 120;
+    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+
+    public static final int DISTANCE = 0;
+    public static final int ANGLE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_graph_stats);
 
+        // Utile pour gérer le scrolling horizontal des graphiques
+        final GestureDetector gdt = new GestureDetector(new GestureListener());
+
         ImageButton returnButton = (ImageButton)findViewById(R.id.returnButton);
         ImageButton generalStats = (ImageButton)findViewById(R.id.generalStats);
         ImageButton distance = (ImageButton)findViewById(R.id.distanceStats);
         ImageButton angle = (ImageButton)findViewById(R.id.angleStats);
         Button caract = (Button)findViewById(R.id.caracteristiques);
+
+        leftArrow = (ImageView)findViewById(R.id.left_arrow);
+        rightArrow = (ImageView)findViewById(R.id.right_arrow);
+
+        LinearLayout chartContainer = (LinearLayout) findViewById(R.id.graph);
 
         returnButton.setOnClickListener(new View.OnClickListener() {
 
@@ -74,21 +87,27 @@ public class graphStats extends Activity {
 
         });
 
+        // On touche le conteneur puis on regardera si on scroll (pour changer de graphique)
+        chartContainer.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(final View view, final MotionEvent event) {
+                gdt.onTouchEvent(event);
+                return true;
+            }
+        });
+
         // on crée la boite de dialogue pour select. les caracteristiques du graphique
         caract.setOnClickListener(new View.OnClickListener() {
-
             public void onClick(View v) {
                 showDialog(1);
             }
-
         });
 
-        distance.setOnClickListener(new View.OnClickListener() {
 
+        distance.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 showDistance();
             }
-
         });
 
         angle.setOnClickListener(new View.OnClickListener() {
@@ -99,17 +118,21 @@ public class graphStats extends Activity {
 
         });
 
-        Intent intent = getIntent();
-        ChoixStat cs = (ChoixStat) intent.getSerializableExtra("choix");
-        if(cs == null)
-            cs = ChoixStat.Distance;
+        mChart = new ArrayList<View>();
 
-        ChoixStat d = ChoixStat.Distance;
-        ChoixStat a = ChoixStat.Angle;
-        if(cs.ordinal() == d.ordinal())
-            showDistance();
-        else if(cs.ordinal() == a.ordinal())
-            showAngle();
+        // On recupère le choix des statistiques à observer
+        Intent intent = getIntent();
+        stat = intent.getIntExtra("choix", DISTANCE); // DISTANCE par défaut
+
+        switch(stat){
+            case DISTANCE:
+                showDistance();
+                break;
+            case ANGLE:
+                showAngle();
+                break;
+        }
+
 /*
         XYSeries series = new XYSeries("London Temperature hourly");
         int hour;
@@ -159,10 +182,51 @@ public class graphStats extends Activity {
         mDataset = new XYMultipleSeriesDataset();
         mDataset.addSeries(mCurrentSeries);
 
-        chartView = ChartFactory.getLineChartView(graphStats.this, mDataset, mRenderer);
+        chartView = ChartFactory.getLineChartView(GraphStats.this, mDataset, mRenderer);
 
         LinearLayout chartLyt = (LinearLayout)findViewById(R.id.graph);
         chartLyt.addView(chartView);*/
+    }
+
+    /* On récupère les mouvements des doigts
+       Ici la classe sert à verifier si on
+       veut scroll pour changer de graphique
+     */
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                if(currentChart < mChart.size()-1) {
+                    currentChart++;
+                    drawGraphic(currentChart);
+                    updateArrowsVisibility();
+                    return true; // Right to left
+                }
+            }  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                if(currentChart > 0) {
+                    currentChart--;
+                    drawGraphic(currentChart);
+                    updateArrowsVisibility();
+                    return true; // Left to right
+                }
+            }
+            return false;
+        }
+    }
+
+    private void updateArrowsVisibility(){
+        if(currentChart == 0){
+            leftArrow.setVisibility(View.INVISIBLE);
+            rightArrow.setVisibility(View.VISIBLE);
+        }
+        else if(currentChart == mChart.size()-1){
+            rightArrow.setVisibility(View.INVISIBLE);
+            leftArrow.setVisibility(View.VISIBLE);
+        }
+        else{
+            leftArrow.setVisibility(View.VISIBLE);
+            rightArrow.setVisibility(View.VISIBLE);
+        }
     }
 
     protected Dialog onCreateDialog(int id) {
@@ -206,8 +270,9 @@ public class graphStats extends Activity {
         valider.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //updateGraphic();
-                openChart();
+                // on appelle la méthode pour modifier les graphiques
+                updateGraphicDatas(listeClub.getSelectedItem().toString(), listeParcours.getSelectedItem().toString(), listeDate.getSelectedItem().toString());
+                // on cache la fenetre
                 dialog.dismiss();
             }
         });
@@ -215,72 +280,84 @@ public class graphStats extends Activity {
         return dialog;
     }
 
-    public void updateGraphic(){
+    // Modifie les graphiques suivant les nouvelles valeurs
+    public void updateGraphicDatas(String club, String course, String date){
 
-        String clubChoisi = listeClub.getSelectedItem().toString();
-        String parcoursChoisi = listeParcours.getSelectedItem().toString();
-        String dateChoisi = listeDate.getSelectedItem().toString();
-
-        XYSeries series = new XYSeries("London Temperature hourly");
-        int hour;
-        for (hour=0;hour<24;hour++) {
-            series.add(hour, (int)(Math.random()*30));
+        switch(stat){
+            case DISTANCE:
+                loadDistance(club, course, date);
+                break;
+            case ANGLE:
+                drawAngle(club, course, date);
+                break;
         }
-
-        //XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
-        mRenderer.setYAxisMax(100);
-        mRenderer.setYAxisMin(0);
-        mRenderer.setXAxisMin(0);
-
-        mDataset.clear();
-        mDataset.addSeries(series);
-        mCurrentSeries = series;
-/*
-        XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
-        mRenderer.addSeriesRenderer(renderer);
-
-        renderer.setPointStyle(PointStyle.CIRCLE);
-        renderer.setFillPoints(true);
-        renderer.setDisplayChartValues(true);
-        renderer.setDisplayChartValuesDistance(10);
-
-        mRenderer = renderer;
-*/
-        //chartView = ChartFactory.getLineChartView(graphStats.this, dataset, mRenderer);
-        chartView.repaint();
+        drawGraphic(currentChart);
     }
 
-    private void openChart(){
-        String[] shortDistance = {"0-10", "10-15", "15-20", "20-25", "25-30", "30-35", "35-40", "40-45", "45-50", "50-55", "55-60"};
-        String[] longDistance = {"50-60", "60-70", "70-80", "80-100", "100-120", "120-140", "140-160", "160-180", "180-200", ">200"};
-        int[] x = { 0,1,2,3,4,5,6,7, 8, 9, 10, 11 };
-        int[] income = { 2000,2500,2700,3000,2800,3500,3700,3800, 0,0,0};
-        int[] expense = {2200, 2700, 2900, 2800, 2600, 3000, 3300, 3400, 0, 0, 0, 0 };
+    public void drawGraphic(int index){
+        if(index >= 0 && index < mChart.size()) {
+            LinearLayout chartContainer = (LinearLayout) findViewById(R.id.graph);
+            chartContainer.removeAllViews(); // on supprime l'affichage de l'ancien graphique
 
-        // Creating an XYSeries for Income
-        XYSeries shortSeries = new XYSeries("Distance");
-        for(int i=0;i<shortDistance.length;i++){
-            shortSeries.add(i,income[i]);
+            updateArrowsVisibility(); // on met à jour la visibilité des fleches
+            chartContainer.addView(mChart.get(index));
         }
+    }
+
+    public void showDistance(){
+        loadDistance("","","");
+        currentChart = 0;
+        drawGraphic(currentChart);
+    }
+
+    public void showAngle(){
+/*
+        LinearLayout chartContainer = (LinearLayout) findViewById(R.id.graph);
+        //remove any views before u paint the chart
+        chartContainer.removeAllViews();*/
+    }
+
+    public void loadDistance(String club, String course, String date){
+        String[] shortDistance = {"0", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"};
+        String[] longDistance = {"60", "70", "80", "100", "120", "140", "160", "180", ">200"};
+        int[] shortS = new int[shortDistance.length];
+        int[] longS = new int[longDistance.length];
+
+        // Creating an XYSeries for short shots
+        XYSeries shortSeries = new XYSeries("Distance");
+        for(int i=0;i<shortDistance.length;i++) {
+            shortS[i] = (int) (Math.random() * 4000);
+            shortSeries.add(i, shortS[i]);
+        }
+        // Creating an XYSeries for long shots
+        XYSeries longSeries = new XYSeries("Distance");
+        for(int i=0;i<longDistance.length;i++){
+            longS[i] = (int)(Math.random()*4000);
+            longSeries.add(i, longS[i]);
+        }
+
         // Creating a dataset to hold each series
-        XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
-        // Adding short Series to the dataset
-        dataset.addSeries(shortSeries);
+        XYMultipleSeriesDataset datasetShort = new XYMultipleSeriesDataset();
+        datasetShort.addSeries(shortSeries);
 
-        // Creating XYSeriesRenderer to customize incomeSeries
-        XYSeriesRenderer incomeRenderer = new XYSeriesRenderer();
-        incomeRenderer.setColor(Color.CYAN); //color of the graph set to cyan
-        incomeRenderer.setFillPoints(true);
-        incomeRenderer.setLineWidth(2);
-        incomeRenderer.setDisplayChartValues(true);
-        incomeRenderer.setDisplayChartValuesDistance(10); //setting chart value distance
+        XYMultipleSeriesDataset datasetLong = new XYMultipleSeriesDataset();
+        datasetLong.addSeries(longSeries);
 
-        // Creating XYSeriesRenderer to customize expenseSeries
-        /*XYSeriesRenderer expenseRenderer = new XYSeriesRenderer();
-        expenseRenderer.setColor(Color.GREEN);
-        expenseRenderer.setFillPoints(true);
-        expenseRenderer.setLineWidth(2);
-        expenseRenderer.setDisplayChartValues(true);*/
+        // Creating XYSeriesRenderer to customize the first chart (shortShot)
+        XYSeriesRenderer shortSRenderer = new XYSeriesRenderer();
+        shortSRenderer.setColor(Color.CYAN); //color of the graph set to cyan
+        shortSRenderer.setFillPoints(true);
+        shortSRenderer.setLineWidth(2);
+        shortSRenderer.setDisplayChartValues(true);
+        shortSRenderer.setDisplayChartValuesDistance(10); //setting chart value distance
+
+        // Creating XYSeriesRenderer to customize the second chart (longShot)
+        XYSeriesRenderer longSRenderer = new XYSeriesRenderer();
+        longSRenderer.setColor(Color.RED); //color of the graph set to cyan
+        longSRenderer.setFillPoints(true);
+        longSRenderer.setLineWidth(2);
+        longSRenderer.setDisplayChartValues(true);
+        longSRenderer.setDisplayChartValuesDistance(10); //setting chart value distance
 
         // Creating a XYMultipleSeriesRenderer to customize the whole chart
         XYMultipleSeriesRenderer multiRenderer = new XYMultipleSeriesRenderer();
@@ -289,11 +366,15 @@ public class graphStats extends Activity {
         multiRenderer.setChartTitle("Distance de tirs courts");
         multiRenderer.setXTitle("Distance");
         multiRenderer.setYTitle("Nombre de tirs");
+        //multiRenderer.
         /***
          * Customizing graphs
          */
-        //setting text size of the title
-        multiRenderer.setChartTitleTextSize(30);
+        multiRenderer.setXLabelsColor(Color.BLACK);
+        multiRenderer.setYLabelsColor(0,Color.BLACK);
+        //setting text size and color of the title
+        multiRenderer.setChartTitleTextSize(50);
+        multiRenderer.setLabelsColor(Color.BLACK);
         //setting text size of the axis title
         multiRenderer.setAxisTitleTextSize(30);
         //setting text size of the graph lable
@@ -338,7 +419,7 @@ public class graphStats extends Activity {
         //setting used to move the graph on xaxiz to .5 to the right
         multiRenderer.setXAxisMin(-0.5);
         //setting max values to be display in x axis
-        multiRenderer.setXAxisMax(11);
+        multiRenderer.setXAxisMax(shortDistance.length);
         //setting bar size or space between two bars
         multiRenderer.setBarSpacing(0.5);
         //Setting background color of the graph to transparent
@@ -351,30 +432,95 @@ public class graphStats extends Activity {
         for(int i=0; i< shortDistance.length;i++){
             multiRenderer.addXTextLabel(i, shortDistance[i]);
         }
-        // Adding incomeRenderer and expenseRenderer to multipleRenderer
-        // Note: The order of adding dataseries to dataset and renderers to multipleRenderer
-        // should be same
-        multiRenderer.addSeriesRenderer(incomeRenderer);
-        //multiRenderer.addSeriesRenderer(expenseRenderer);
-        //this part is used to display graph on the xml
-        LinearLayout chartContainer = (LinearLayout) findViewById(R.id.graph);
-        //remove any views before u paint the chart
-        //chartContainer.removeAllViews();
-        //drawing bar chart
-        mChart = ChartFactory.getBarChartView(graphStats.this, dataset, multiRenderer, BarChart.Type.DEFAULT);
-        //adding the view to the linearlayout
-        chartContainer.addView(mChart);
-        Button b = new Button(this);
-        chartContainer.addView(b);
+
+        multiRenderer.addSeriesRenderer(shortSRenderer);
+
+        // LONG SHOTS //
+        // Creating a XYMultipleSeriesRenderer to customize the whole chart
+        XYMultipleSeriesRenderer multiRendererLong = new XYMultipleSeriesRenderer();
+        multiRendererLong.setOrientation(XYMultipleSeriesRenderer.Orientation.HORIZONTAL);
+        multiRendererLong.setXLabels(0);
+        multiRendererLong.setChartTitle("Distance de tirs longs");
+        multiRendererLong.setXTitle("Distance");
+        multiRendererLong.setYTitle("Nombre de tirs");
+        //multiRenderer.
+        /***
+         * Customizing graphs
+         */
+        multiRendererLong.setXLabelsColor(Color.BLACK);
+        multiRendererLong.setYLabelsColor(0,Color.BLACK);
+        //setting text size and color of the title
+        multiRendererLong.setChartTitleTextSize(50);
+        multiRendererLong.setLabelsColor(Color.BLACK);
+        //setting text size of the axis title
+        multiRendererLong.setAxisTitleTextSize(30);
+        //setting text size of the graph lable
+        multiRendererLong.setLabelsTextSize(30);
+        //setting zoom buttons visiblity
+        multiRendererLong.setZoomButtonsVisible(false);
+        //setting pan enablity which uses graph to move on both axis
+        multiRendererLong.setPanEnabled(false, false);
+        //setting click false on graph
+        multiRendererLong.setClickEnabled(false);
+        //setting zoom to false on both axis
+        multiRendererLong.setZoomEnabled(false, false);
+        //setting lines to display on y axis
+        multiRendererLong.setShowGridY(false);
+        //setting lines to display on x axis
+        multiRendererLong.setShowGridX(false);
+        //setting legend to fit the screen size
+        multiRendererLong.setFitLegend(true);
+        //setting displaying line on grid
+        multiRendererLong.setShowGrid(false);
+        //setting zoom to false
+        multiRendererLong.setZoomEnabled(false);
+        //setting external zoom functions to false
+        multiRendererLong.setExternalZoomEnabled(false);
+        //setting displaying lines on graph to be formatted(like using graphics)
+        multiRendererLong.setAntialiasing(true);
+        //setting to in scroll to false
+        multiRendererLong.setInScroll(false);
+        //setting to set legend height of the graph
+        multiRendererLong.setLegendHeight(30);
+        //setting x axis label align
+        multiRendererLong.setXLabelsAlign(Paint.Align.CENTER);
+        //setting y axis label to align
+        multiRendererLong.setYLabelsAlign(Paint.Align.LEFT);
+        //setting text style
+        multiRendererLong.setTextTypeface("sans_serif", Typeface.NORMAL);
+        //setting no of values to display in y axis
+        multiRendererLong.setYLabels(10);
+        // setting y axis max value, Since i'm using static values inside the graph so i'm setting y max value to 4000.
+        // if you use dynamic values then get the max y value and set here
+        multiRendererLong.setYAxisMax(4000);
+        //setting used to move the graph on xaxiz to .5 to the right
+        multiRendererLong.setXAxisMin(-0.5);
+        //setting max values to be display in x axis
+        multiRendererLong.setXAxisMax(longDistance.length);
+        //setting bar size or space between two bars
+        multiRendererLong.setBarSpacing(0.5);
+        //Setting background color of the graph to transparent
+        multiRendererLong.setBackgroundColor(Color.TRANSPARENT);
+        //Setting margin color of the graph to transparent
+        multiRendererLong.setMarginsColor(getResources().getColor(R.color.transparent));
+        multiRendererLong.setApplyBackgroundColor(true);
+        //setting the margin size for the graph in the order top, left, bottom, right
+        multiRendererLong.setMargins(new int[]{30, 30, 30, 30});
+        for(int i=0; i< longDistance.length;i++){
+            multiRendererLong.addXTextLabel(i, longDistance[i]);
+        }
+
+        multiRendererLong.addSeriesRenderer(longSRenderer);
+
+
+        mChart.clear();// on vide la liste de graphiques
+
+        mChart.add( ChartFactory.getBarChartView(graphStats.this, datasetShort, multiRenderer, BarChart.Type.DEFAULT) );
+        mChart.add( ChartFactory.getBarChartView(graphStats.this, datasetLong, multiRendererLong, BarChart.Type.DEFAULT) );
     }
 
-    public void showDistance(){
-        openChart();
+    public void drawAngle(String club, String course, String date){
+
     }
 
-    public void showAngle(){
-        LinearLayout chartContainer = (LinearLayout) findViewById(R.id.graph);
-        //remove any views before u paint the chart
-        chartContainer.removeAllViews();
-    }
 }

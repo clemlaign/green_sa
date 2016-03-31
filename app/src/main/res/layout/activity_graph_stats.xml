@@ -61,158 +61,54 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="50dp"
+        android:gravity="center_horizontal"
         android:background="@drawable/background">
+
+        <Button
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:text="Choisir caractéristiques"
+            android:layout_marginTop="10dp"
+            android:id="@+id/caracteristiques"/>
 
         <!--<ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/scrollView">-->
             <LinearLayout
-                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
-                android:id="@+id/chart"
-                android:gravity="center">
-
-                <Button
-                    android:layout_width="250dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_weight="1"
+                    android:layout_width="25dp"
                     android:layout_height="wrap_content"
-                    android:text="Choisir caractéristiques"
-                    android:id="@+id/caracteristiques"/>
+                    android:id="@+id/left_arrow"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/android_arrow"/>
 
-                <!--<LinearLayout
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_weight="2"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/white"
+                    android:id="@+id/graph"
                     android:orientation="vertical">
 
-                </LinearLayout>-->
+                </LinearLayout>
 
+                <ImageView
+                    android:layout_weight="1"
+                    android:layout_width="25dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/right_arrow"
+                    android:adjustViewBounds="true"
+                    android:scaleX="-1"
+                    android:src="@drawable/android_arrow"/>
             </LinearLayout>
-    <!--</ScrollView>-->
-</LinearLayout>
-
-<!-- FOOTER NAVIGATION -->
-    <LinearLayout
-        android:orientation="horizontal"
-        android:id="@+id/footer_border"
-
-        android:background="@color/green"
-        android:layout_width="match_parent"
-        android:layout_height="1px"
-        android:layout_above="@+id/footer" />
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:background="@color/white"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
-        android:baselineAligned="false"
-        android:id="@+id/footer">
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:id="@+id/tab1">
-            <ImageButton
-                android:id="@+id/generalStats"
-                android:layout_weight="2"
-                android:layout_height="0dp"
-                android:layout_width="match_parent"
-                android:background="@color/white"
-                android:src="@drawable/ic_icon1"
-                android:clickable="true"
-                android:fontFamily="sans-serif-light" />
-            <TextView
-                android:gravity="center"
-                android:layout_weight="1"
-                android:textColor="@color/black"
-                android:textSize="8dp"
-                android:layout_height="0dp"
-                android:layout_width="match_parent"
-                android:text="Général" />
-
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:id="@+id/tab2">
-            <ImageButton
-                android:id="@+id/eventsB"
-                android:layout_weight="2"
-                android:layout_height="0dp"
-                android:layout_width="match_parent"
-                android:background="@color/white"
-                android:src="@drawable/ic_icon2"
-                android:clickable="true"
-                android:fontFamily="sans-serif-light" />
-            <TextView
-                android:gravity="center"
-                android:layout_weight="1"
-                android:textColor="@color/black"
-                android:textSize="8dp"
-                android:layout_height="0dp"
-                android:layout_width="match_parent"
-                android:text="Distance" />
-
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:id="@+id/tab3">
-            <ImageButton
-                android:id="@+id/assosB"
-                android:layout_weight="2"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:background="@color/white"
-                android:src="@drawable/ic_icon3"
-                android:clickable="true"
-                android:fontFamily="sans-serif-light" />
-            <TextView
-                android:gravity="center"
-                android:layout_weight="1"
-                android:textColor="@color/black"
-                android:textSize="8dp"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:text="Angle" />
-
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:id="@+id/tab4">
-            <ImageButton
-                android:id="@+id/profilB"
-                android:layout_weight="2"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:background="@color/white"
-                android:src="@drawable/ic_icon4"
-                android:clickable="true"
-                android:fontFamily="sans-serif-light" />
-            <TextView
-                android:gravity="center"
-                android:layout_weight="1"
-                android:textColor="@color/black"
-                android:textSize="8dp"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:text="AUTRE STAT" />
-
-        </LinearLayout>
+        <!--</ScrollView>-->
     </LinearLayout>
+
+    <include layout="@layout/menu_bottom"></include>
 </RelativeLayout>
 
