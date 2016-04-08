@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -45,9 +46,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
 
-        ImageButton returnButton = (ImageButton) findViewById(R.id.returnButton);
+        ImageView homeButton = (ImageView) findViewById(R.id.homeButton);
 
-        returnButton.setOnClickListener(new View.OnClickListener() {
+        homeButton.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
                 Intent activity = new Intent(MapsActivity.this, MainActivity.class);

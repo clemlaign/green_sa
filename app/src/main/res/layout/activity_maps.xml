@@ -9,21 +9,19 @@
         android:layout_alignParentTop="true"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@color/green"
+        android:background="@color/menu_top"
         android:baselineAligned="false"
-        android:id="@+id/header"
-        android:focusable="false">
+        android:id="@+id/header">
         <LinearLayout
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:gravity="center_horizontal">
-            <ImageButton
-                android:id="@+id/returnButton"
+            android:gravity="center">
+            <ImageView
+                android:id="@+id/homeButton"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:adjustViewBounds="true"
-                android:src="@drawable/fleche_retour"/>
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_home_black_36dp"/>
         </LinearLayout>
         <LinearLayout
             android:layout_weight="3"
@@ -36,18 +34,18 @@
                 android:layout_height="match_parent"
                 android:layout_width="match_parent"
                 android:gravity="center"
-                android:text="@string/stats_header" />
+                android:text="Tir" />
         </LinearLayout>
         <LinearLayout
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:gravity="center_horizontal">
-            <ImageButton
+            android:gravity="center">
+            <ImageView
+                android:id="@+id/settingsButton"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:adjustViewBounds="true"
-                android:src="@drawable/home"/>
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_settings_black_36dp"/>
         </LinearLayout>
     </LinearLayout>
 
