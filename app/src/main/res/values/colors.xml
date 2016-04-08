@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="green">#3F9A4A</color>
+    <color name="menu_top">#6EAA39</color>
+    <color name="menu_bottom">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="dialog">#89CF92</color>
     <color name="transparent">#00FFFFFF</color>
+    <color name="chartBar">#582900</color>
+    <color name="dialog">#89CF92</color>
+    <color name="filterBottomMenu">#000000</color>
+
 </resources>

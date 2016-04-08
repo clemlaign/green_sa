@@ -15,7 +15,7 @@ import fr.insa_rennes.greensa.database.model.Hole;
 
 /**
  * Created by Antoine on 30/03/2016.
- * Contient la liste des parcours de golf chargé à partir d'un fichier
+ * Contient la liste des parcours de golf chargés à partir d'un fichier
  */
 public class CoursesLoader {
 
@@ -32,9 +32,9 @@ public class CoursesLoader {
     public static boolean isLoaded(){
         if(courses == null){
             courses = new ArrayList<Course>(); // on initialise
-            return courses.size() != 0;
+            return false;
         }
-        return false;
+        return courses.size() != 0;
     }
 
     /**
@@ -45,12 +45,6 @@ public class CoursesLoader {
      *  Revoit true si le chargement a fonctionné, false sinon
      */
     public static boolean loadCoursesFromFile(Context context, String fileName){
-        FileInputStream fIn = null;
-        InputStreamReader isr = null;
-
-        char[] inputBuffer = new char[255];
-        String data = null;
-
         InputStream in = null;
         try {
             in = context.getAssets().open(fileName);

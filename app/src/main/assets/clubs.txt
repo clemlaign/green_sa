@@ -1,0 +1,12 @@
+Driver 0
+Bois_3 1
+Bois_5 2
+Fer_3 3
+Fer_4 4
+Fer_5 5
+Fer_6 6
+Fer_7 7
+Fer_8 8
+Fer_9 9
+Pitch 10
+Wedge 11

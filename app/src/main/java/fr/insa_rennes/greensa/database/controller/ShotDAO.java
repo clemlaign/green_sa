@@ -34,6 +34,10 @@ public class ShotDAO extends DAOBase {
         values.put("coordLongTheo_end", s.getCoordLongTheo_end());
         values.put("coordLatReal_end", s.getCoordLatReal_end());
         values.put("coordLongReal_end", s.getCoordLongReal_end());
+        values.put("distance", s.getDistance());
+        values.put("angle", s.getAngle());
+        values.put("wind", s.getWind());
+        values.put("date", s.getDate());
 
         // Inserting Row
         mDb.insert(TABLE_NAME, null, values);
@@ -54,6 +58,13 @@ public class ShotDAO extends DAOBase {
     }
 
     /**
+     * on vide la table
+     */
+    public void clear() {
+        mDb.delete(TABLE_NAME, null, null);
+    }
+
+    /**
      * @param id l'identifiant du coup à récupérer
      */
     public Shot select(int id) {
@@ -62,7 +73,8 @@ public class ShotDAO extends DAOBase {
         if (c != null)
             c.moveToFirst();
 
-        Shot shot = new Shot(c.getInt(0), c.getInt(1), c.getInt(2), c.getFloat(3), c.getFloat(4), c.getFloat(5), c.getFloat(6), c.getFloat(7), c.getFloat(8));
+        Shot shot = new Shot(c.getInt(1), c.getInt(2), c.getFloat(3), c.getFloat(4), c.getFloat(5), c.getFloat(6), c.getFloat(7), c.getFloat(8), c.getFloat(9), c.getFloat(10), c.getString(11),  c.getString(12));
+        shot.setId(c.getInt(0)); // la base contient un id autoincrement
         c.close();
 
         return shot;
@@ -74,7 +86,9 @@ public class ShotDAO extends DAOBase {
         Cursor c = mDb.rawQuery(query, var);
 
         while(c.moveToNext()){
-            list.add(new Shot(c.getInt(0), c.getInt(1), c.getInt(2), c.getFloat(3), c.getFloat(4), c.getFloat(5), c.getFloat(6), c.getFloat(7), c.getFloat(8)));
+            Shot shot = new Shot(c.getInt(1), c.getInt(2), c.getFloat(3), c.getFloat(4), c.getFloat(5), c.getFloat(6), c.getFloat(7), c.getFloat(8), c.getFloat(9), c.getFloat(10),  c.getString(11),  c.getString(12));
+            shot.setId(c.getInt(0)); // la base contient un id autoincrement
+            list.add(shot);
         }
         c.close();
 

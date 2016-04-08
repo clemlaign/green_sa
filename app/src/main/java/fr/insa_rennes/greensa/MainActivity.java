@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import fr.insa_rennes.greensa.database.ClubsLoader;
 import fr.insa_rennes.greensa.database.CoursesLoader;
 import fr.insa_rennes.greensa.stats.Stats;
 import fr.insa_rennes.greensa.map.MapsActivity;
@@ -22,6 +23,10 @@ public class MainActivity extends Activity {
         if(!CoursesLoader.isLoaded())
             CoursesLoader.loadCoursesFromFile(this, "holes.txt");
 
+        // Chargement des clubs
+        if(!ClubsLoader.isLoaded())
+            ClubsLoader.loadClubsFromFile(this, "clubs.txt");
+
         Button newGame = (Button)findViewById(R.id.newGame);
         Button stats = (Button)findViewById(R.id.stats);
         Button help = (Button)findViewById(R.id.help);
@@ -29,7 +34,7 @@ public class MainActivity extends Activity {
         stats.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-                Intent activity = new Intent(MainActivity.this, graphStats.class);
+                Intent activity = new Intent(MainActivity.this, Stats.class);
                 startActivity(activity);
             }
 

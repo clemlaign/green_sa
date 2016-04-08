@@ -19,13 +19,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "id_course INTEGER, " +
                     "id_club INTEGER, "+
-                    "date VARCHAR(15), "+
                     "coordLat_start REAL, "+
                     "coordLong_start REAL, "+
                     "coordLatTheo_end REAL, "+
                     "coordLongTheo_end REAL, "+
                     "coordLatReal_end REAL, "+
-                    "coordLongReal_end REAL);";
+                    "coordLongReal_end REAL, "+
+                    "distance REAL, "+
+                    "angle REAL,"+
+                    "wind TEXT, "+
+                    "date TEXT);";
 
     public static final String METIER_TABLE_DROP = "DROP TABLE IF EXISTS " + SHOT_TABLE_NAME + ";";
 

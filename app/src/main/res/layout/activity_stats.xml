@@ -13,20 +13,19 @@
         android:layout_alignParentTop="true"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@color/green"
+        android:background="@color/menu_top"
         android:baselineAligned="false"
         android:id="@+id/header">
         <LinearLayout
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:gravity="center_horizontal">
-            <ImageButton
-                android:id="@+id/returnButton"
+            android:gravity="center">
+            <ImageView
+                android:id="@+id/homeButton"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:adjustViewBounds="true"
-                android:src="@drawable/fleche_retour"/>
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_home_black_36dp"/>
         </LinearLayout>
         <LinearLayout
             android:layout_weight="3"
@@ -45,12 +44,12 @@
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:gravity="center_horizontal">
-            <ImageButton
+            android:gravity="center">
+            <ImageView
+                android:id="@+id/settingsButton"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:adjustViewBounds="true"
-                android:src="@drawable/home"/>
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_settings_black_36dp"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -68,58 +67,162 @@
             android:layout_height="match_parent"
             android:id="@+id/scrollView">
             <LinearLayout
-                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="10dp">
-                <LinearLayout
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginLeft="15dp">
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
+                    android:gravity="center_horizontal"
+                    android:text="Consultez les informations des tirs enregistrés à l'aide du menu en bas. Quelques statistiques générales :"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:textColor="@color/black"
-                        android:text="Nombre de tires totaux : 1000"/>
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center_horizontal">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:textColor="@color/black"
-                        android:text="Dernier tir enregistré le : 09/03/2016"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/black"
-                        android:text="AUTRE blablabla ...\n...\n...\n..."/>
-
+                        <LinearLayout
+                            android:layout_width="150dp"
+                            android:layout_height="match_parent"
+                            android:background="@color/white"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/nb_tirs"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textStyle="bold"
+                                android:textSize="20sp"
+                                android:padding="5dp"
+                                />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Nombre de tirs enregistrés totaux"
+                                android:padding="5dp"
+                                />
+                        </LinearLayout>
+                        <View
+                            android:layout_width="20dp"
+                            android:layout_height="wrap_content"/>
+                        <LinearLayout
+                            android:layout_width="150dp"
+                            android:layout_height="wrap_content"
+                            android:background="@color/white"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/date"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textStyle="bold"
+                                android:textSize="20sp"
+                                android:padding="5dp"
+                                />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Date du dernier tir enregistré"
+                                android:padding="5dp"
+                                android:layout_marginBottom="10dp"
+                                />
+                        </LinearLayout>
                 </LinearLayout>
+
+
+
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center_horizontal">
 
-                    <Button
-                        android:layout_width="200dp"
+                    <LinearLayout
+                        android:layout_width="150dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/white"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/distance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textStyle="bold"
+                            android:textSize="20sp"
+                            android:padding="5dp"
+                            />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="La plus longue distance enregistrée"
+                            android:padding="5dp"
+                            />
+                    </LinearLayout>
+                    <View
+                        android:layout_width="20dp"
+                        android:layout_height="wrap_content"/>
+                    <LinearLayout
+                        android:layout_width="150dp"
                         android:layout_height="wrap_content"
-                        android:text="Tableaux des scores"
-                        android:id="@+id/tab_scores"/>
+                        android:background="@color/white"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/parcours"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textStyle="bold"
+                            android:textSize="20sp"
+                            android:padding="5dp"
+                            />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Le parcours le plus joué"
+                            android:padding="5dp"
+                            android:layout_marginBottom="10dp"
+                            />
+                    </LinearLayout>
+                </LinearLayout>
 
-                    <Button
-                        android:layout_width="200dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="Supprimer les stats"
-                        android:id="@+id/reset"/>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center_horizontal">
+
+                    <LinearLayout
+                        android:layout_width="320dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/white"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/angleMoyen"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textStyle="bold"
+                            android:textSize="20sp"
+                            android:padding="5dp"
+                            />
+                        <TextView
+                            android:id="@+id/angleMoyenDescription"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="5dp"
+                            android:layout_marginBottom="10dp"
+                            />
+                    </LinearLayout>
 
                 </LinearLayout>
+
             </LinearLayout>
+
+
         </ScrollView>
     </LinearLayout>
 

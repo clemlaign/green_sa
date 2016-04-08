@@ -65,7 +65,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/black"
                 android:layout_weight="2"
-                android:text="Depuis :"
+                android:text="Date :"
                 android:textSize="18dp" />
 
             <Spinner
