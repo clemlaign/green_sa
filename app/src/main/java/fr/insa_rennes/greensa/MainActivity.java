@@ -8,6 +8,7 @@ import android.widget.Button;
 
 import fr.insa_rennes.greensa.database.ClubsLoader;
 import fr.insa_rennes.greensa.database.CoursesLoader;
+import fr.insa_rennes.greensa.map.ChoiceCourseActivity;
 import fr.insa_rennes.greensa.stats.Stats;
 import fr.insa_rennes.greensa.map.MapsActivity;
 import fr.insa_rennes.greensa.stats.graphStats;
@@ -43,7 +44,7 @@ public class MainActivity extends Activity {
         newGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent activity = new Intent(MainActivity.this, MapsActivity.class);
+                Intent activity = new Intent(MainActivity.this, ChoiceCourseActivity.class);
                 startActivity(activity);
             }
         });
