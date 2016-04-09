@@ -1,5 +1,7 @@
 package fr.insa_rennes.greensa;
 
+import android.support.v7.internal.widget.FitWindowsViewGroup;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -9,7 +11,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.util.Date;
 
 /**
  * Created by Antoine on 08/04/2016.
@@ -44,13 +48,24 @@ import java.nio.charset.Charset;
 
 public class WeatherReader {
 
-    public static JSONObject read(float lattitude, float longitude){
-        JSONObject json = null;
-        try{
-            // On recupere le JSONObject
-            json = readJsonFromUrl("api.openweathermap.org/data/2.5/weather?lat="+Float.toString(lattitude)+"&lon="+Float.toString(longitude));
+    private static final String APPID = "fc7f2d6f55d2b25e62dfc457601169d9";
+    private static long formerTimestamp = 0;
 
-        } catch(IOException ioe){ }
+    public static JSONObject read(float lattitude, float longitude){
+        JSONObject json = new JSONObject();
+        try{
+
+            Date atm = new Date();
+
+            // On ne met à jour le temps que maximum 1 fois toutes les 5mins (la météo change peu)
+            if(atm.getTime() > formerTimestamp + 5*60000) {
+                // On recupere le JSONObject
+                json = readJsonFromUrl("http://api.openweathermap.org/data/2.5/weather?APPID="+APPID+"&lat=" + Float.toString(lattitude) + "&lon=" + Float.toString(longitude));
+                formerTimestamp = atm.getTime(); // On actualise la date
+                System.out.println("On actualise !!");
+            }
+
+        } catch (IOException ioe){ }
           catch (JSONException je){ }
 
         return json;
@@ -65,7 +80,7 @@ public class WeatherReader {
         return sb.toString();
     }
 
-    private static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
+    public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
         InputStream is = new URL(url).openStream();
         try {
             BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
