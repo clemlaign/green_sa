@@ -1,7 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!-- HEADER NAVIGATION -->
     <LinearLayout
@@ -56,10 +57,27 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="50dp"
         tools:context=".map.MapsActivity"
         android:layout_below="@+id/header"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true">
+        </fragment>
 
+
+    <include layout="@layout/menu_bottom_map"></include>
+
+    <android.support.design.widget.FloatingActionButton android:id="@+id/fab"
+    android:layout_width="wrap_content" android:layout_height="wrap_content"
+    android:layout_gravity="center"
+        android:src="@drawable/ic_add_circle_white_48dp"
+        android:background="@color/transparent"
+        app:backgroundTint="@color/marqueurMap"
+        android:tint="@color/black"
+        android:layout_alignBottom="@+id/map"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_alignParentEnd="true" />
 </RelativeLayout>
 

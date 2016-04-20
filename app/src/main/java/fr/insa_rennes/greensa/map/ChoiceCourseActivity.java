@@ -68,7 +68,7 @@ public class ChoiceCourseActivity extends Activity {
                     }
                 }
                 // On transmet l'id du parcours selectionné
-                activity.getIntExtra("id_parcours", id);
+                activity.putExtra("id_parcours", id);
                 startActivity(activity);
             }
 

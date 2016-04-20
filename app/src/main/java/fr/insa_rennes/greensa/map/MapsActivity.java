@@ -8,11 +8,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Spinner;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -20,13 +24,29 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import fr.insa_rennes.greensa.MainActivity;
 import fr.insa_rennes.greensa.R;
+import fr.insa_rennes.greensa.database.ClubsLoader;
+import fr.insa_rennes.greensa.database.controller.ShotDAO;
+import fr.insa_rennes.greensa.database.model.Club;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+
+    private Spinner clubsSpinner = null;
+    private Spinner toolsSpinner = null;
+    private MarkerOptions marker;
+    private Polyline polyline;
+
+    private LatLng hole;
 
     private static final int MY_PERMISSIONS_REQUEST_ACCES_FINE_LOCATION = 1;
     private GoogleMap mMap;
@@ -41,8 +61,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
         ImageView homeButton = (ImageView) findViewById(R.id.homeButton);
+        Button puttButton = (Button)findViewById(R.id.puttButton);
+        clubsSpinner = (Spinner)findViewById(R.id.clubsSpinner);
+        toolsSpinner = (Spinner)findViewById(R.id.toolsSpinner);
+
+        // On récupère l'id du parcours
+        Intent intent = getIntent();
+        int id = intent.getIntExtra("id_parcours", 0);
 
         homeButton.setOnClickListener(new View.OnClickListener() {
 
@@ -52,6 +78,49 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
         });
+
+        puttButton.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View v) {
+
+            }
+
+        });
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                LatLng golf = new LatLng(48.067616, -1.746352);
+                LatLng trou1 = new LatLng(48.068060, -1.745856);
+
+                // On crée le marker
+                if(mMap != null){
+                    LatLng pos = new LatLng((golf.latitude + trou1.latitude)/2,(golf.longitude + trou1.longitude)/2);
+                    marker = new MarkerOptions().position(pos).title("").draggable(true);
+                    mMap.addMarker(marker);
+                }
+
+                PolylineOptions rectOptions = new PolylineOptions()
+                        .add(golf)
+                        .add(new LatLng((golf.latitude + trou1.latitude)/2,(golf.longitude + trou1.longitude)/2))  // North of the previous point, but at the same longitude
+                        .add(trou1); // Closes the polyline.
+
+                rectOptions.color(getResources().getColor(R.color.white));
+                // Get back the mutable Polyline
+                polyline = mMap.addPolyline(rectOptions);
+            }
+        });
+
+        // On remplit le spinner club
+        List<String> list = new ArrayList<String>();
+        for(Club course : ClubsLoader.getClubs()){
+            list.add(course.getName());
+        }
+
+        ArrayAdapter<String> adapterClubs = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, list);
+        clubsSpinner.setAdapter(adapterClubs);
 
     }
 
@@ -67,6 +136,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+        // Lorsqu'on déplace un marqueur sur la map
+        mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            // On commence le déplacement
+            public void onMarkerDragStart(Marker markerDragStart) {
+
+            }
+
+            // On a finit le déplacement
+            public void onMarkerDragEnd(Marker markerDragEnd) {
+
+            }
+
+            // En cours de déplacement
+            // On met à jour les traits des distances entre les markers
+            public void onMarkerDrag(Marker markerDrag) {
+                List<LatLng> list = new ArrayList<LatLng>();
+
+                list.add(new LatLng(48.067616, -1.746352));
+                list.add(markerDrag.getPosition());
+                list.add(new LatLng(48.068060, -1.745856));
+                polyline.setPoints(list);
+            }
+        });
 
         LatLng golf = new LatLng(48.067616, -1.746352);
         LatLng trou1 = new LatLng(48.068060, -1.745856);
@@ -183,6 +276,36 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // other 'case' lines to check for other
             // permissions this app might request
         }
+    }
+
+    // (lat1, lon1) debut
+    // (lat2, lon2) fin
+    public void addShot(double lat1, double lat2, double lon1, double lon2){
+
+        ShotDAO sdao = new ShotDAO(this);
+        sdao.open();
+
+        // Calcul distance
+        final int R = 6371; // Radius of the earth
+
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double dist = R * c * 1000; // convert to meters
+
+        // Calcul angle
+        double longDelta = lon2 - lon1;
+        double y = Math.sin(longDelta) * Math.cos(lat2);
+        double x = Math.cos(lat1)*Math.sin(lat2) -
+                Math.sin(lat1)*Math.cos(lat2)*Math.cos(longDelta);
+        double angle = Math.toDegrees(Math.atan2(y, x));
+
+        //sdao.ajouter(new Shot(id_parcours, id_club, coordLat_start, coordLong_start, coordLatTheo_end, coordLongTheo_end, coordLatReal_end, coordLongReal_end, dist, angle));
+
+        sdao.close();
     }
 
 }

@@ -8,5 +8,6 @@
     <color name="chartBar">#582900</color>
     <color name="dialog">#89CF92</color>
     <color name="filterBottomMenu">#000000</color>
+    <color name="marqueurMap">#F17569</color>
 
 </resources>
