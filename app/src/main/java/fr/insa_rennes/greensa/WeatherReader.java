@@ -1,7 +1,5 @@
 package fr.insa_rennes.greensa;
 
-import android.support.v7.internal.widget.FitWindowsViewGroup;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 

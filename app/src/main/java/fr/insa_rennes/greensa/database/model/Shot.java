@@ -9,21 +9,21 @@ public class Shot {
     private int id; // id en autoincrement
     private int id_parcours, id_club;
     private float coordLat_start, coordLong_start;
-    private float coordLatTheo_end, getCoordLongTheo_end; // coordonnées que l'on souhaite atteindre
-    private float coordLatReal_end, getCoordLongReal_end; // coordonnées réelles atteintes
+    private float coordLatTheo_end, coordLongTheo_end; // coordonnées que l'on souhaite atteindre
+    private float coordLatReal_end, coordLongReal_end; // coordonnées réelles atteintes
     private float distance, angle; // distance en mètre et angle (deviation) en degré du tir
     private String wind; // format suivant: "vitesse degré"
     private String date; // format dd-MM-yyyy
 
-    public Shot(int id_parcours, int id_club, float coordLat_start, float coordLong_start, float coordLatTheo_end, float getCoordLongTheo_end, float coordLatReal_end, float getCoordLongReal_end, float distance, float angle, String wind, String date) {
+    public Shot(int id_parcours, int id_club, float coordLat_start, float coordLong_start, float coordLatTheo_end, float coordLongTheo_end, float coordLatReal_end, float coordLongReal_end, float distance, float angle, String wind, String date) {
         this.id_parcours = id_parcours;
         this.id_club = id_club;
         this.coordLat_start = coordLat_start;
         this.coordLong_start = coordLong_start;
         this.coordLatTheo_end = coordLatTheo_end;
-        this.getCoordLongTheo_end = getCoordLongTheo_end;
+        this.coordLongTheo_end = coordLongTheo_end;
         this.coordLatReal_end = coordLatReal_end;
-        this.getCoordLongReal_end = getCoordLongReal_end;
+        this.coordLongReal_end = coordLongReal_end;
         this.distance = distance;
         this.angle = angle;
         this.wind = wind;
@@ -79,11 +79,11 @@ public class Shot {
     }
 
     public float getCoordLongTheo_end() {
-        return getCoordLongTheo_end;
+        return coordLongTheo_end;
     }
 
-    public void setCoordLongTheo_end(float getCoordLongTheo_end) {
-        this.getCoordLongTheo_end = getCoordLongTheo_end;
+    public void setCoordLongTheo_end(float coordLongTheo_end) {
+        this.coordLongTheo_end = coordLongTheo_end;
     }
 
     public float getCoordLatReal_end() {
@@ -95,11 +95,11 @@ public class Shot {
     }
 
     public float getCoordLongReal_end() {
-        return getCoordLongReal_end;
+        return coordLongReal_end;
     }
 
-    public void setCoordLongReal_end(float getCoordLongReal_end) {
-        this.getCoordLongReal_end = getCoordLongReal_end;
+    public void setCoordLongReal_end(float coordLongReal_end) {
+        this.coordLongReal_end = coordLongReal_end;
     }
 
     public float getDistance() {
