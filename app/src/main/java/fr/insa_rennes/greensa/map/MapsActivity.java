@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -17,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -35,40 +38,67 @@ import java.util.List;
 import fr.insa_rennes.greensa.MainActivity;
 import fr.insa_rennes.greensa.R;
 import fr.insa_rennes.greensa.database.ClubsLoader;
+import fr.insa_rennes.greensa.database.CoursesLoader;
 import fr.insa_rennes.greensa.database.controller.ShotDAO;
 import fr.insa_rennes.greensa.database.model.Club;
+import fr.insa_rennes.greensa.database.model.Course;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private Spinner clubsSpinner = null;
     private Spinner toolsSpinner = null;
-    private MarkerOptions marker;
+    private Marker marker;
     private Polyline polyline;
 
+    private Course course = null;
     private LatLng hole;
+    private int current_hole;
 
     private static final int MY_PERMISSIONS_REQUEST_ACCES_FINE_LOCATION = 1;
     private GoogleMap mMap;
-    LocationManager locationManager;
+
+    //private LocationManager locationManager;
+    private GpsLocation gps;
+    private double lattitude;
+    private double longitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        // On intialise le GPS
+        gps = new GpsLocation(this);
 
         ImageView homeButton = (ImageView) findViewById(R.id.homeButton);
         Button puttButton = (Button)findViewById(R.id.puttButton);
         clubsSpinner = (Spinner)findViewById(R.id.clubsSpinner);
         toolsSpinner = (Spinner)findViewById(R.id.toolsSpinner);
 
+        // Chargement des infos sur le parcours
+
         // On récupère l'id du parcours
         Intent intent = getIntent();
-        int id = intent.getIntExtra("id_parcours", 0);
+        int id_course = intent.getIntExtra("id_parcours", 0);
+
+        // On récupère le parcours grace à l'id
+        for(Course cTmp : CoursesLoader.getCourses()){
+            if(cTmp.getId() == id_course) {
+                course = cTmp;
+                break;
+            }
+        }
+
+        // On récupère les coordonnées du 1er trou
+        current_hole = 0;
+        hole = new LatLng(course.getHoles()[current_hole].getCoordLat(), course.getHoles()[current_hole].getCoordLong());
+
 
         homeButton.setOnClickListener(new View.OnClickListener() {
 
@@ -98,8 +128,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // On crée le marker
                 if(mMap != null){
                     LatLng pos = new LatLng((golf.latitude + trou1.latitude)/2,(golf.longitude + trou1.longitude)/2);
-                    marker = new MarkerOptions().position(pos).title("").draggable(true);
-                    mMap.addMarker(marker);
+                    marker = mMap.addMarker(new MarkerOptions().position(pos).title("").draggable(true));
                 }
 
                 PolylineOptions rectOptions = new PolylineOptions()
@@ -115,14 +144,101 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // On remplit le spinner club
         List<String> list = new ArrayList<String>();
-        for(Club course : ClubsLoader.getClubs()){
-            list.add(course.getName());
+        for(Club club : ClubsLoader.getClubs()){
+            list.add(club.getName());
         }
 
         ArrayAdapter<String> adapterClubs = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, list);
         clubsSpinner.setAdapter(adapterClubs);
-
     }
+
+    public void onResume() {
+        super.onResume();
+
+        // On s'abonne de nouveau
+        gps.abonnementGPS();
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        //On appelle la méthode pour se désabonner
+        gps.desabonnementGPS();
+    }
+
+    /*
+    * Classe interne GpsLocation
+    * Récupère la lattitude et la longitude de l'appareil
+    * Abonnement/désabonnement permet d'économiser la batterie en activant/désactivant le gps
+    * Toutes les manip à faire suite à un changement de position sont à faire dans la méthode onLocationChanged
+    */
+    public class GpsLocation implements LocationListener {
+
+        private LocationManager locationManager;
+
+        public GpsLocation(Context context) {
+            this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        }
+
+        // Lorsque la position change
+        public void onLocationChanged(Location location) {
+            lattitude = location.getLatitude();
+            longitude = location.getLongitude();
+
+            String myLocation = "Latitude = " + location.getLatitude() + " Longitude = " + location.getLongitude();
+            //Toast.makeText(this, myLocation, Toast.LENGTH_LONG).show();
+            //I make a log to see the results
+            System.out.println(myLocation);
+        }
+
+        public void onProviderDisabled(final String provider) {
+            //Si le GPS est désactivé on se désabonne
+            System.out.println("TEST1\n\n\n");
+            if("gps".equals(provider)) {
+                desabonnementGPS();
+            }
+        }
+
+        public void onProviderEnabled(final String provider) {
+            //Si le GPS est activé on s'abonne
+            System.out.println("TEST2\n\n\n");
+            if("gps".equals(provider)) {
+                abonnementGPS();
+            }
+        }
+
+        public void onStatusChanged(final String provider, final int status, final Bundle extras) { }
+
+        /**
+         * Méthode permettant de s'abonner à la localisation par GPS.
+         */
+        public void abonnementGPS() {
+            //Si le GPS est disponible, on s'y abonne
+
+            if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                try {
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                    //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+                } catch (SecurityException e) {
+                    System.out.println(e.getMessage());
+                }
+
+            }
+        }
+
+        /**
+         * Méthode permettant de se désabonner de la localisation par GPS.
+         */
+        public void desabonnementGPS() {
+            // On se désabonne
+            try{
+                locationManager.removeUpdates(this);
+            } catch (SecurityException e) {
+
+            }
+        }
+    }
+
 
     /**
      * Manipulates the map once available.
@@ -136,18 +252,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.getUiSettings().setMapToolbarEnabled(false); // Disable Map Toolbar
+        mMap.getUiSettings().setZoomControlsEnabled(false); // Disable Zoom Buttons
 
         // Lorsqu'on déplace un marqueur sur la map
         mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
             // On commence le déplacement
-            public void onMarkerDragStart(Marker markerDragStart) {
-
-            }
+            public void onMarkerDragStart(Marker markerDragStart) { }
 
             // On a finit le déplacement
-            public void onMarkerDragEnd(Marker markerDragEnd) {
-
-            }
+            public void onMarkerDragEnd(Marker markerDragEnd) { }
 
             // En cours de déplacement
             // On met à jour les traits des distances entre les markers
@@ -239,7 +353,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         onGreen();
         Intent intent = new Intent(this, AlertReceiver.class);
         PendingIntent pending = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        locationManager.addProximityAlert(48.1199722, -1.6540202, 1000, -1, pending);
+        //locationManager.addProximityAlert(48.1199722, -1.6540202, 1000, -1, pending);
     }
 
     // Sous classe utilisée par la classe HoleProximity
