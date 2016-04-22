@@ -26,6 +26,7 @@ public class ShotDAO extends DAOBase {
      */
     public void ajouter(Shot s) {
         ContentValues values = new ContentValues();
+        values.put("id", s.getId());
         values.put("id_course", s.getId_parcours());
         values.put("id_club", s.getId_club());
         values.put("coordLat_start", s.getCoordLat_start());
@@ -73,8 +74,7 @@ public class ShotDAO extends DAOBase {
         if (c != null)
             c.moveToFirst();
 
-        Shot shot = new Shot(c.getInt(1), c.getInt(2), c.getFloat(3), c.getFloat(4), c.getFloat(5), c.getFloat(6), c.getFloat(7), c.getFloat(8), c.getFloat(9), c.getFloat(10), c.getString(11),  c.getString(12));
-        shot.setId(c.getInt(0)); // la base contient un id autoincrement
+        Shot shot = new Shot(c.getInt(0), c.getInt(1), c.getInt(2), c.getFloat(3), c.getFloat(4), c.getFloat(5), c.getFloat(6), c.getFloat(7), c.getFloat(8), c.getFloat(9), c.getFloat(10), c.getString(11),  c.getString(12));
         c.close();
 
         return shot;
@@ -86,8 +86,7 @@ public class ShotDAO extends DAOBase {
         Cursor c = mDb.rawQuery(query, var);
 
         while(c.moveToNext()){
-            Shot shot = new Shot(c.getInt(1), c.getInt(2), c.getFloat(3), c.getFloat(4), c.getFloat(5), c.getFloat(6), c.getFloat(7), c.getFloat(8), c.getFloat(9), c.getFloat(10),  c.getString(11),  c.getString(12));
-            shot.setId(c.getInt(0)); // la base contient un id autoincrement
+            Shot shot = new Shot(c.getInt(0), c.getInt(1), c.getInt(2), c.getFloat(3), c.getFloat(4), c.getFloat(5), c.getFloat(6), c.getFloat(7), c.getFloat(8), c.getFloat(9), c.getFloat(10),  c.getString(11),  c.getString(12));
             list.add(shot);
         }
         c.close();

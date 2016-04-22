@@ -12,7 +12,7 @@ public abstract class DAOBase {
 
     // Nous sommes à la première version de la base
     // Si je décide de la mettre à jour, il faudra changer cet attribut
-    protected final static int VERSION = 6;
+    protected final static int VERSION = 7;
 
     // Le nom du fichier qui représente ma base
     protected final static String NOM = "database.db";

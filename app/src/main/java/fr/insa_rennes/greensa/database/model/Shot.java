@@ -6,16 +6,17 @@ package fr.insa_rennes.greensa.database.model;
  */
 public class Shot {
 
-    private int id; // id en autoincrement
+    private int id; // id du trou
     private int id_parcours, id_club;
-    private float coordLat_start, coordLong_start;
-    private float coordLatTheo_end, coordLongTheo_end; // coordonnées que l'on souhaite atteindre
-    private float coordLatReal_end, coordLongReal_end; // coordonnées réelles atteintes
-    private float distance, angle; // distance en mètre et angle (deviation) en degré du tir
+    private double coordLat_start, coordLong_start;
+    private double coordLatTheo_end, coordLongTheo_end; // coordonnées que l'on souhaite atteindre
+    private double coordLatReal_end, coordLongReal_end; // coordonnées réelles atteintes
+    private double distance, angle; // distance en mètre et angle (deviation) en degré du tir
     private String wind; // format suivant: "vitesse degré"
     private String date; // format dd-MM-yyyy
 
-    public Shot(int id_parcours, int id_club, float coordLat_start, float coordLong_start, float coordLatTheo_end, float coordLongTheo_end, float coordLatReal_end, float coordLongReal_end, float distance, float angle, String wind, String date) {
+    public Shot(int id, int id_parcours, int id_club, double coordLat_start, double coordLong_start, double coordLatTheo_end, double coordLongTheo_end, double coordLatReal_end, double coordLongReal_end, double distance, double angle, String wind, String date) {
+        this.id = id;
         this.id_parcours = id_parcours;
         this.id_club = id_club;
         this.coordLat_start = coordLat_start;
@@ -54,67 +55,67 @@ public class Shot {
         this.id_club = id_club;
     }
 
-    public float getCoordLat_start() {
+    public double getCoordLat_start() {
         return coordLat_start;
     }
 
-    public void setCoordLat_start(float coordLat_start) {
+    public void setCoordLat_start(double coordLat_start) {
         this.coordLat_start = coordLat_start;
     }
 
-    public float getCoordLong_start() {
+    public double getCoordLong_start() {
         return coordLong_start;
     }
 
-    public void setCoordLong_start(float coordLong_start) {
+    public void setCoordLong_start(double coordLong_start) {
         this.coordLong_start = coordLong_start;
     }
 
-    public float getCoordLatTheo_end() {
+    public double getCoordLatTheo_end() {
         return coordLatTheo_end;
     }
 
-    public void setCoordLatTheo_end(float coordLatTheo_end) {
+    public void setCoordLatTheo_end(double coordLatTheo_end) {
         this.coordLatTheo_end = coordLatTheo_end;
     }
 
-    public float getCoordLongTheo_end() {
+    public double getCoordLongTheo_end() {
         return coordLongTheo_end;
     }
 
-    public void setCoordLongTheo_end(float coordLongTheo_end) {
+    public void setCoordLongTheo_end(double coordLongTheo_end) {
         this.coordLongTheo_end = coordLongTheo_end;
     }
 
-    public float getCoordLatReal_end() {
+    public double getCoordLatReal_end() {
         return coordLatReal_end;
     }
 
-    public void setCoordLatReal_end(float coordLatReal_end) {
+    public void setCoordLatReal_end(double coordLatReal_end) {
         this.coordLatReal_end = coordLatReal_end;
     }
 
-    public float getCoordLongReal_end() {
+    public double getCoordLongReal_end() {
         return coordLongReal_end;
     }
 
-    public void setCoordLongReal_end(float coordLongReal_end) {
+    public void setCoordLongReal_end(double coordLongReal_end) {
         this.coordLongReal_end = coordLongReal_end;
     }
 
-    public float getDistance() {
+    public double getDistance() {
         return distance;
     }
 
-    public void setDistance(float distance) {
+    public void setDistance(double distance) {
         this.distance = distance;
     }
 
-    public float getAngle() {
+    public double getAngle() {
         return angle;
     }
 
-    public void setAngle(float angle) {
+    public void setAngle(double angle) {
         this.angle = angle;
     }
 

@@ -32,12 +32,19 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import fr.insa_rennes.greensa.MainActivity;
 import fr.insa_rennes.greensa.R;
+import fr.insa_rennes.greensa.WeatherReader;
 import fr.insa_rennes.greensa.database.ClubsLoader;
 import fr.insa_rennes.greensa.database.CoursesLoader;
 import fr.insa_rennes.greensa.database.controller.ShotDAO;
@@ -316,7 +323,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         markerHole = mMap.addMarker(new MarkerOptions().position(hole).title("Trou"));        positionTir = position;
         markerPosition = mMap.addMarker(new MarkerOptions().position(positionTir).title("Position"));
 
-        Toast.makeText(this,"Position enregistrée, vous pouvez tirer !", Toast.LENGTH_LONG);
+        Toast.makeText(this, "Position enregistrée, vous pouvez tirer !", Toast.LENGTH_LONG);
 
     }
 
@@ -391,7 +398,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Calcul distance
         // On enregistre les infos entre posTir et posBalleReel
-
         final int R = 6371; // Radius of the earth
 
         double latDistance = Math.toRadians(posBalleReel.latitude - posTir.latitude);
@@ -409,9 +415,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Math.sin(posTir.latitude)*Math.cos(posBalleReel.latitude)*Math.cos(longDelta);
         double angle = Math.toDegrees(Math.atan2(y, x));
 
+        // On récupère le club selectionné
+        int id_club = 0;
+        String club = (String) clubsSpinner.getSelectedItem();
 
+        for(Club cl : ClubsLoader.getClubs()){
+            if(cl.getName().equals(club)) {
+                id_club = cl.getId();
+                break;
+            }
+        }
 
-        //sdao.ajouter(new Shot(id_course, id_club, posTir.latitude, posTir.longitude, posBalleTheo.latitude, posBalleTheo.latitude, posBalleReel.latitude, posBalleReel.longitude, dist, angle));
+        // On récupère les infos sur le vent (vitesse + degrée)
+        JSONObject json = WeatherReader.read(posTir.latitude, posTir.longitude);
+        String wind = null;
+        try {
+            wind = json.getJSONObject("wind").get("speed") + " " + json.getJSONObject("wind").get("deg");
+        } catch (JSONException e){
+
+        }
+
+        // On récupère la date courante
+        Date actuelle = new Date();
+        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        String date = dateFormat.format(actuelle);
+
+        sdao.ajouter(new Shot(current_hole + 1, id_course, id_club, posTir.latitude, posTir.longitude, posBalleTheo.latitude, posBalleTheo.latitude, posBalleReel.latitude, posBalleReel.longitude, dist, angle, wind, date));
 
         sdao.close();
     }

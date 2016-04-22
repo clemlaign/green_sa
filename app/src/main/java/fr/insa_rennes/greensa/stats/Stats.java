@@ -164,7 +164,7 @@ public class Stats extends Activity {
 
         // On parcourt des tirs enregistrés pour afficher des stats
 
-        float max_dist = 0;
+        double max_dist = 0;
         float av_angle = 0;
         // nombre de tir par parcours - clé: id_parcours, valeur: nb tirs
         HashMap<Integer, Integer> pref_courses = new HashMap<Integer, Integer>();
@@ -202,7 +202,7 @@ public class Stats extends Activity {
             date_lastShot.setText("Jamais");
 
         max_dist = (float)(Math.round(max_dist*10.0)/10.0); // on arrondit au dixième
-        max_distance.setText(Float.toString(max_dist)+"m");
+        max_distance.setText(Double.toString(max_dist)+"m");
 
         if(id_pref_parcours != -1 && id_pref_parcours < CoursesLoader.getCourses().size())
             best_course.setText(CoursesLoader.getCourses().get(id_pref_parcours).getName());

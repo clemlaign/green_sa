@@ -49,7 +49,7 @@ public class WeatherReader {
     private static final String APPID = "fc7f2d6f55d2b25e62dfc457601169d9";
     private static long formerTimestamp = 0;
 
-    public static JSONObject read(float lattitude, float longitude){
+    public static JSONObject read(double lattitude, double longitude){
         JSONObject json = new JSONObject();
         try{
 
@@ -58,7 +58,7 @@ public class WeatherReader {
             // On ne met à jour le temps que maximum 1 fois toutes les 5mins (la météo change peu)
             if(atm.getTime() > formerTimestamp + 5*60000) {
                 // On recupere le JSONObject
-                json = readJsonFromUrl("http://api.openweathermap.org/data/2.5/weather?APPID="+APPID+"&lat=" + Float.toString(lattitude) + "&lon=" + Float.toString(longitude));
+                json = readJsonFromUrl("http://api.openweathermap.org/data/2.5/weather?APPID="+APPID+"&lat=" + Double.toString(lattitude) + "&lon=" + Double.toString(longitude));
                 formerTimestamp = atm.getTime(); // On actualise la date
                 System.out.println("On actualise !!");
             }
