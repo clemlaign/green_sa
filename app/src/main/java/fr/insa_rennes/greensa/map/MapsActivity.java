@@ -34,6 +34,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import fr.insa_rennes.greensa.MainActivity;
 import fr.insa_rennes.greensa.R;
@@ -42,29 +43,30 @@ import fr.insa_rennes.greensa.database.CoursesLoader;
 import fr.insa_rennes.greensa.database.controller.ShotDAO;
 import fr.insa_rennes.greensa.database.model.Club;
 import fr.insa_rennes.greensa.database.model.Course;
+import fr.insa_rennes.greensa.database.model.Shot;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private Spinner clubsSpinner = null;
     private Spinner toolsSpinner = null;
+    private Button enregistrerPos = null;
     private Marker markerPosition;
     private Marker markerHole;
     private Marker markerObjectif;
     private Polyline polyline;
 
     private Course course = null;
-    public LatLng hole;
-    public LatLng position = new LatLng(48.067616, -1.746352);
+    private LatLng hole;
+    private LatLng positionTir;
+    private LatLng position;
     private int current_hole;
 
-    private static final int MY_PERMISSIONS_REQUEST_ACCES_FINE_LOCATION = 1;
     private GoogleMap mMap;
 
     //private LocationManager locationManager;
     private GpsLocation gps;
-    private double latitude;
-    private double longitude;
+    private int id_course;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,16 +81,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // On intialise le GPS
         gps = new GpsLocation(this);
 
-        ImageView homeButton = (ImageView) findViewById(R.id.homeButton);
+        ImageView homeButton = (ImageView)findViewById(R.id.homeButton);
         Button puttButton = (Button)findViewById(R.id.puttButton);
         clubsSpinner = (Spinner)findViewById(R.id.clubsSpinner);
         toolsSpinner = (Spinner)findViewById(R.id.toolsSpinner);
+        enregistrerPos = (Button)findViewById(R.id.enregistrerPos);
 
         // Chargement des infos sur le parcours
 
         // On récupère l'id du parcours
         Intent intent = getIntent();
-        int id_course = intent.getIntExtra("id_parcours", 0);
+        id_course = intent.getIntExtra("id_parcours", 0);
 
         // On récupère le parcours grace à l'id
         for(Course cTmp : CoursesLoader.getCourses()){
@@ -99,9 +102,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         // On récupère les coordonnées du 1er trou
-        current_hole = 0;
-        hole = new LatLng(course.getHoles()[current_hole].getCoordLat(), course.getHoles()[current_hole].getCoordLong());
-
+        current_hole = -1;
 
         homeButton.setOnClickListener(new View.OnClickListener() {
 
@@ -126,7 +127,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View view) {
 
                 // On crée le marker
-                if(mMap != null){
+                if(mMap != null && markerObjectif == null){
                     LatLng pos = new LatLng((position.latitude + hole.latitude)/2,(position.longitude + hole.longitude)/2);
                     markerObjectif = mMap.addMarker(new MarkerOptions().position(pos).title("").draggable(true));
                 }
@@ -150,6 +151,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         ArrayAdapter<String> adapterClubs = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, list);
         clubsSpinner.setAdapter(adapterClubs);
+
+        // Bouton position enregistrée
+        enregistrerPos.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View v) {
+                positionSaved();
+            }
+
+        });
     }
 
 
@@ -170,8 +180,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Lorsque la position change
         public void onLocationChanged(Location location) {
-            latitude = location.getLatitude();
-            longitude = location.getLongitude();
+            position = new LatLng(location.getLatitude(), location.getLongitude());
 
             String myLocation = "Latitude = " + location.getLatitude() + " Longitude = " + location.getLongitude();
             //Toast.makeText(this, myLocation, Toast.LENGTH_LONG).show();
@@ -278,41 +287,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng((position.latitude + hole.latitude)/2,(position.longitude + hole.longitude)/2))
-                .bearing(30)
-                .tilt(20)
-                .zoom(19)
-                .build();
-
-        markerPosition = mMap.addMarker(new MarkerOptions().position(position).title("Position"));
-        markerHole = mMap.addMarker(new MarkerOptions().position(hole).title("Trou"));
-        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
 
-        //Récupérer l'id du parcours (getIntExtra de ChoiceCourse Activity
-        //boucle for avec le nombre de trou selon id du parcours
-
-        //Boucle des coups à écrire
+        nextHole();
         // Sans gps, appeler ongreen (il faut qu'elle renvoie oui si l'utilisateur a dit oui et inversement)
         //avec gps, holeproximity doit créer une alerte de proximité et du coup appeler onGreen si on on se situe a sur le green
     }
 
-    // Attente du coup suivant
-    public void nextShot() {
+    // Signaler à l'utilisateur qu'il doit se positionner sur le point de départ avant de commencer
+    public void positionDepart(){
         final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-        alertDialog.setTitle("Coup suivant:");
-        alertDialog.setMessage("Attendez d'être au niveau de la balle.");
-        alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+        alertDialog.setTitle("Départ");
+        alertDialog.setMessage("Positionnez vous sur le point de départ.");
+        alertDialog.setButton("Go !", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                //ShotDAO s = new ShotDAO(MapsActivity.this);
-                //s.open();
-                //s.ajouter(new Shot(0,0,0, float coordLat_start, float coordLong_start, float coordLatTheo_end, float getCoordLongTheo_end, float coordLatReal_end, float getCoordLongReal_end));
-                //s.close();
+                positionTir = position;
+                markerPosition = mMap.addMarker(new MarkerOptions().position(positionTir).title("Position"));
                 alertDialog.hide();
             }
         });
         alertDialog.show();
+    }
+
+    // On enregistre la position: prêt pour le tir
+    public void positionSaved() {
+
+        mMap.clear();
+        markerHole = mMap.addMarker(new MarkerOptions().position(hole).title("Trou"));        positionTir = position;
+        markerPosition = mMap.addMarker(new MarkerOptions().position(positionTir).title("Position"));
+
+        Toast.makeText(this,"Position enregistrée, vous pouvez tirer !", Toast.LENGTH_LONG);
+
     }
 
     //Trou suivant
@@ -320,7 +325,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void nextHole() {
         current_hole ++;
         hole = new LatLng(course.getHoles()[current_hole].getCoordLat(), course.getHoles()[current_hole].getCoordLong());
-        position = new LatLng(latitude,longitude);
 
         mMap.clear();
 
@@ -331,9 +335,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .zoom(19)
                 .build();
 
-        markerPosition = mMap.addMarker(new MarkerOptions().position(position).title("Position"));
+        markerObjectif = null;
         markerHole = mMap.addMarker(new MarkerOptions().position(hole).title("Trou"));
         mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+        positionDepart();
     }
 
     // Appelée par la AlertReceiver
@@ -360,7 +366,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Intent intent = new Intent(this, AlertReceiver.class);
         PendingIntent pending = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         try {
-            gps.locationManager.addProximityAlert(48.1199722, -1.6540202, 1000, -1, pending);
+            gps.locationManager.addProximityAlert(hole.latitude, hole.longitude, 1000, -1, pending);
         } catch (SecurityException e) {}
     }
 
@@ -378,30 +384,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     // (lat1, lon1) debut (avant tir)
     // (lat2, lon2) fin (après tir)
-    public void addShot(double lat1, double lat2, double lon1, double lon2){
+    public void addShot(LatLng posTir, LatLng posBalleTheo, LatLng posBalleReel){
 
         ShotDAO sdao = new ShotDAO(this);
         sdao.open();
 
         // Calcul distance
+        // On enregistre les infos entre posTir et posBalleReel
+
         final int R = 6371; // Radius of the earth
 
-        double latDistance = Math.toRadians(lat2 - lat1);
-        double lonDistance = Math.toRadians(lon2 - lon1);
+        double latDistance = Math.toRadians(posBalleReel.latitude - posTir.latitude);
+        double lonDistance = Math.toRadians(posBalleReel.longitude - posTir.longitude);
         double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                + Math.cos(Math.toRadians(posTir.latitude)) * Math.cos(Math.toRadians(posBalleReel.latitude))
                 * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         double dist = R * c * 1000; // convert to meters
 
         // Calcul angle
-        double longDelta = lon2 - lon1;
-        double y = Math.sin(longDelta) * Math.cos(lat2);
-        double x = Math.cos(lat1)*Math.sin(lat2) -
-                Math.sin(lat1)*Math.cos(lat2)*Math.cos(longDelta);
+        double longDelta = posBalleReel.longitude - posTir.longitude;
+        double y = Math.sin(longDelta) * Math.cos(posBalleReel.latitude);
+        double x = Math.cos(posTir.latitude)*Math.sin(posBalleReel.latitude) -
+                Math.sin(posTir.latitude)*Math.cos(posBalleReel.latitude)*Math.cos(longDelta);
         double angle = Math.toDegrees(Math.atan2(y, x));
 
-        //sdao.ajouter(new Shot(id_parcours, id_club, coordLat_start, coordLong_start, coordLatTheo_end, coordLongTheo_end, coordLatReal_end, coordLongReal_end, dist, angle));
+
+
+        //sdao.ajouter(new Shot(id_course, id_club, posTir.latitude, posTir.longitude, posBalleTheo.latitude, posBalleTheo.latitude, posBalleReel.latitude, posBalleReel.longitude, dist, angle));
 
         sdao.close();
     }
