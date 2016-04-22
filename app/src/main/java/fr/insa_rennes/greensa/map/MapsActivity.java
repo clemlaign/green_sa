@@ -48,11 +48,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private Spinner clubsSpinner = null;
     private Spinner toolsSpinner = null;
-    private Marker marker;
+    private Marker markerPosition;
+    private Marker markerHole;
+    private Marker markerObjectif;
     private Polyline polyline;
 
     private Course course = null;
-    private LatLng hole;
+    public LatLng hole;
+    public LatLng position = new LatLng(48.067616, -1.746352);
     private int current_hole;
 
     private static final int MY_PERMISSIONS_REQUEST_ACCES_FINE_LOCATION = 1;
@@ -60,7 +63,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     //private LocationManager locationManager;
     private GpsLocation gps;
-    private double lattitude;
+    private double latitude;
     private double longitude;
 
     @Override
@@ -122,19 +125,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View view) {
 
-                LatLng golf = new LatLng(48.067616, -1.746352);
-                LatLng trou1 = new LatLng(48.068060, -1.745856);
-
                 // On crée le marker
                 if(mMap != null){
-                    LatLng pos = new LatLng((golf.latitude + trou1.latitude)/2,(golf.longitude + trou1.longitude)/2);
-                    marker = mMap.addMarker(new MarkerOptions().position(pos).title("").draggable(true));
+                    LatLng pos = new LatLng((position.latitude + hole.latitude)/2,(position.longitude + hole.longitude)/2);
+                    markerObjectif = mMap.addMarker(new MarkerOptions().position(pos).title("").draggable(true));
                 }
 
                 PolylineOptions rectOptions = new PolylineOptions()
-                        .add(golf)
-                        .add(new LatLng((golf.latitude + trou1.latitude)/2,(golf.longitude + trou1.longitude)/2))  // North of the previous point, but at the same longitude
-                        .add(trou1); // Closes the polyline.
+                        .add(position)
+                        .add(new LatLng((position.latitude + hole.latitude) / 2, (position.longitude + hole.longitude) / 2))  // North of the previous point, but at the same longitude
+                        .add(hole); // Closes the polyline.
 
                 rectOptions.color(getResources().getColor(R.color.white));
                 // Get back the mutable Polyline
@@ -152,19 +152,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         clubsSpinner.setAdapter(adapterClubs);
     }
 
-    public void onResume() {
-        super.onResume();
 
-        // On s'abonne de nouveau
-        gps.abonnementGPS();
-    }
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        //On appelle la méthode pour se désabonner
-        gps.desabonnementGPS();
-    }
 
     /*
     * Classe interne GpsLocation
@@ -182,7 +170,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Lorsque la position change
         public void onLocationChanged(Location location) {
-            lattitude = location.getLatitude();
+            latitude = location.getLatitude();
             longitude = location.getLongitude();
 
             String myLocation = "Latitude = " + location.getLatitude() + " Longitude = " + location.getLongitude();
@@ -240,6 +228,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
+    public void onResume() {
+        super.onResume();
+
+        // On s'abonne de nouveau
+        gps.abonnementGPS();
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        //On appelle la méthode pour se désabonner
+        gps.desabonnementGPS();
+    }
+
+
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -268,27 +271,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onMarkerDrag(Marker markerDrag) {
                 List<LatLng> list = new ArrayList<LatLng>();
 
-                list.add(new LatLng(48.067616, -1.746352));
+                list.add(position);
                 list.add(markerDrag.getPosition());
-                list.add(new LatLng(48.068060, -1.745856));
+                list.add(hole);
                 polyline.setPoints(list);
             }
         });
 
-        LatLng golf = new LatLng(48.067616, -1.746352);
-        LatLng trou1 = new LatLng(48.068060, -1.745856);
-
         CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng((golf.latitude + trou1.latitude)/2,(golf.longitude + trou1.longitude)/2))
+                .target(new LatLng((position.latitude + hole.latitude)/2,(position.longitude + hole.longitude)/2))
                 .bearing(30)
                 .tilt(20)
                 .zoom(19)
                 .build();
 
-        mMap.addMarker(new MarkerOptions().position(golf).title("Départ"));
-        mMap.addMarker(new MarkerOptions().position(trou1).title("Trou1"));
+        markerPosition = mMap.addMarker(new MarkerOptions().position(position).title("Position"));
+        markerHole = mMap.addMarker(new MarkerOptions().position(hole).title("Trou"));
         mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+
+        //Récupérer l'id du parcours (getIntExtra de ChoiceCourse Activity
+        //boucle for avec le nombre de trou selon id du parcours
 
         //Boucle des coups à écrire
         // Sans gps, appeler ongreen (il faut qu'elle renvoie oui si l'utilisateur a dit oui et inversement)
@@ -312,6 +315,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         alertDialog.show();
     }
 
+    //Trou suivant
+    //On efface tous les marqueurs précédents et on créé les nouveaux
+    public void nextHole() {
+        current_hole ++;
+        hole = new LatLng(course.getHoles()[current_hole].getCoordLat(), course.getHoles()[current_hole].getCoordLong());
+        position = new LatLng(latitude,longitude);
+
+        mMap.clear();
+
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(new LatLng((position.latitude + hole.latitude)/2,(position.longitude + hole.longitude)/2))
+                .bearing(30)
+                .tilt(20)
+                .zoom(19)
+                .build();
+
+        markerPosition = mMap.addMarker(new MarkerOptions().position(position).title("Position"));
+        markerHole = mMap.addMarker(new MarkerOptions().position(hole).title("Trou"));
+        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+    }
+
     // Appelée par la AlertReceiver
     public void onGreen() {
         final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
@@ -332,28 +356,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     // Si on s'approche du green
     public void holeProximity() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION) || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-            } else {
-
-                // No explanation needed, we can request the permission.
-
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCES_FINE_LOCATION);
-
-                // MY_PERMISSIONS_REQUEST_ACCES_FINE_LOCATION is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
-            }
-        }
         onGreen();
         Intent intent = new Intent(this, AlertReceiver.class);
         PendingIntent pending = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        //locationManager.addProximityAlert(48.1199722, -1.6540202, 1000, -1, pending);
+        try {
+            gps.locationManager.addProximityAlert(48.1199722, -1.6540202, 1000, -1, pending);
+        } catch (SecurityException e) {}
     }
 
     // Sous classe utilisée par la classe HoleProximity
@@ -368,32 +376,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_ACCES_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-
-                } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                }
-                return;
-            }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
-        }
-    }
-
-    // (lat1, lon1) debut
-    // (lat2, lon2) fin
+    // (lat1, lon1) debut (avant tir)
+    // (lat2, lon2) fin (après tir)
     public void addShot(double lat1, double lat2, double lon1, double lon2){
 
         ShotDAO sdao = new ShotDAO(this);

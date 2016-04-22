@@ -84,7 +84,7 @@
                 android:padding="2dp"
                 android:adjustViewBounds="true"
                 android:background="@color/transparent"
-                android:src="@drawable/picto_angle"
+                android:src="@drawable/ic_icon3"
                 android:clickable="true" />
             <TextView
                 android:gravity="center"
