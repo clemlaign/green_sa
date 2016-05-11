@@ -26,7 +26,8 @@ public class ShotDAO extends DAOBase {
      */
     public void ajouter(Shot s) {
         ContentValues values = new ContentValues();
-        values.put("id", s.getId());
+        values.put("id_course_hole", s.getId_course_hole());
+        values.put("id_hole", s.getId_hole());
         values.put("id_course", s.getId_parcours());
         values.put("id_club", s.getId_club());
         values.put("coordLat_start", s.getCoordLat_start());
@@ -65,28 +66,13 @@ public class ShotDAO extends DAOBase {
         mDb.delete(TABLE_NAME, null, null);
     }
 
-    /**
-     * @param id l'identifiant du coup à récupérer
-     */
-    public Shot select(int id) {
-        Cursor c = mDb.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE id=?", new String[]{Integer.toString(id)});
-
-        if (c != null)
-            c.moveToFirst();
-
-        Shot shot = new Shot(c.getInt(0), c.getInt(1), c.getInt(2), c.getFloat(3), c.getFloat(4), c.getFloat(5), c.getFloat(6), c.getFloat(7), c.getFloat(8), c.getFloat(9), c.getFloat(10), c.getString(11),  c.getString(12));
-        c.close();
-
-        return shot;
-    }
-
     public List<Shot> selectElements(String query, String[] var){
         List<Shot> list = new ArrayList<Shot>();
 
         Cursor c = mDb.rawQuery(query, var);
 
         while(c.moveToNext()){
-            Shot shot = new Shot(c.getInt(0), c.getInt(1), c.getInt(2), c.getFloat(3), c.getFloat(4), c.getFloat(5), c.getFloat(6), c.getFloat(7), c.getFloat(8), c.getFloat(9), c.getFloat(10),  c.getString(11),  c.getString(12));
+            Shot shot = new Shot(c.getInt(0), c.getInt(1), c.getInt(2), c.getInt(3), c.getFloat(4), c.getFloat(5), c.getFloat(6), c.getFloat(7), c.getFloat(8), c.getFloat(9), c.getFloat(10), c.getFloat(11), c.getString(12),  c.getString(13));
             list.add(shot);
         }
         c.close();

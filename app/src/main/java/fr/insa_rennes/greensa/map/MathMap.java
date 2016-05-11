@@ -1,0 +1,39 @@
+package fr.insa_rennes.greensa.map;
+
+import com.google.android.gms.maps.model.LatLng;
+
+/**
+ * Created by Antoine on 01/05/2016.
+ * Methodes effectuant divers calculs
+ */
+public class MathMap {
+
+    public static final int R = 6371; // Radius of the earth
+
+    public static double calculateDistance(LatLng p1, LatLng p2){
+
+        double latDistance = Math.toRadians(p2.latitude - p1.latitude);
+        double lonDistance = Math.toRadians(p2.longitude - p1.longitude);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(p1.latitude)) * Math.cos(Math.toRadians(p2.latitude))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double dist = R * c * 1000; // convert to meters
+
+        dist = (Math.round((dist*10.0))/10.0); // on arrondit au dixième
+
+        return dist;
+    }
+
+    // Calcul l'angle entre 2 points
+    public static double calculateAngle(LatLng p1, LatLng p2){
+
+        /*double longDelta = posBalleReel.longitude - posTir.longitude;
+        double y = Math.sin(longDelta) * Math.cos(posBalleReel.latitude);
+        double x = Math.cos(posTir.latitude) * Math.sin(posBalleReel.latitude) -
+                Math.sin(posTir.latitude) * Math.cos(posBalleReel.latitude) * Math.cos(longDelta);
+        double angle = Math.toDegrees(Math.atan2(y, x));
+*/
+        return 0;
+    }
+}

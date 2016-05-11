@@ -45,6 +45,8 @@ public class Stats extends Activity {
         distance.setAlpha(ALPHA_LEVEL);
         ImageView angle = (ImageView)findViewById(R.id.angleStats);
         angle.setAlpha(ALPHA_LEVEL);
+        ImageView score = (ImageView)findViewById(R.id.score);
+        score.setAlpha(ALPHA_LEVEL);
 
         homeButton.setOnClickListener(new View.OnClickListener() {
 
@@ -82,14 +84,42 @@ public class Stats extends Activity {
             }
 
         });
-/*
+
+        /*ShotDAO sdao = new ShotDAO(this);
+        sdao.open();
+        for(int i=0;i<100;i++){
+            //sdao.ajouter(new Shot(0,0,0, (int)(Math.random()*10), 0, 0, 0, 0, 0, 0, (float)(Math.random()*220), (float)(Math.random()*60 - 30), "", "06-04-2016"));
+            sdao.ajouter(new Shot(0,0,0, (int)(Math.random()*10), 0, 0, 0, 0, 0, 0, (float)(Math.random()*(110-80)+80), (float)(Math.random()*60 - 30), "", "06-04-2016"));
+        }
+*/
+        //sdao.close();
+
+
+        // On recupère les tirs suivant les infos
         ShotDAO sdao = new ShotDAO(this);
         sdao.open();
-        for(int i=0;i<200;i++){
-            sdao.ajouter(new Shot((int)(Math.random()*2), (int)(Math.random()*10), 0, 0, 0, 0, 0, 0, (float)(Math.random()*220), (float)(Math.random()*60 - 30), "", "06-04-2016"));
-        }
+        List<Shot> listShots = sdao.selectElements("SELECT * FROM Shot WHERE distance <> 0", null);
         sdao.close();
-*/
+
+        float moyenne = 0;
+        float variance = 0;
+        for(Shot s : listShots){
+            moyenne += s.getDistance();
+        }
+        moyenne /= listShots.size();
+
+        for(Shot s : listShots){
+            variance += Math.pow(s.getDistance() - moyenne, 2);
+        }
+        variance /=listShots.size();
+
+        moyenne = (float)(Math.round(moyenne*10.0)/10.0);
+        variance = (float)(Math.round(variance*10.0)/10.0);
+
+        double x = 1.96*(variance/Math.sqrt(listShots.size()));
+
+        System.out.println("Moyenne : "+moyenne+"\nVariance : "+variance + "\nX : "+x);
+
         ActualizeStats();
     }
 
@@ -159,7 +189,7 @@ public class Stats extends Activity {
 
         ShotDAO sdao = new ShotDAO(this);
         sdao.open();
-        List<Shot> list = sdao.selectElements("SELECT * FROM " + sdao.TABLE_NAME, null);
+        List<Shot> list = sdao.selectElements("SELECT * FROM " + sdao.TABLE_NAME + " WHERE distance <> 0", null);
         sdao.close();
 
         // On parcourt des tirs enregistrés pour afficher des stats
@@ -201,7 +231,7 @@ public class Stats extends Activity {
         else
             date_lastShot.setText("Jamais");
 
-        max_dist = (float)(Math.round(max_dist*10.0)/10.0); // on arrondit au dixième
+        max_dist = (Math.round(max_dist*10.0)/10.0); // on arrondit au dixième
         max_distance.setText(Double.toString(max_dist)+"m");
 
         if(id_pref_parcours != -1 && id_pref_parcours < CoursesLoader.getCourses().size())

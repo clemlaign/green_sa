@@ -24,16 +24,18 @@
             android:layout_weight="1"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
-            android:id="@+id/tab1">
+            android:id="@+id/tab1"
+            android:gravity="center">
             <ImageView
                 android:id="@+id/generalStats"
                 android:layout_weight="2"
-                android:layout_height="0dp"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="10dp"
+                android:padding="5dp"
+                android:adjustViewBounds="true"
                 android:background="@color/transparent"
-                android:src="@drawable/ic_icon1"
-                android:clickable="true"
-                android:fontFamily="sans-serif-light" />
+                android:src="@drawable/picto3"
+                android:clickable="true" /> />
             <TextView
                 android:gravity="center"
                 android:layout_weight="1"
@@ -49,16 +51,18 @@
             android:layout_height="match_parent"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:id="@+id/tab2">
+            android:id="@+id/tab2"
+            android:gravity="center">
             <ImageView
                 android:id="@+id/distanceStats"
                 android:layout_weight="2"
-                android:layout_height="0dp"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="10dp"
+                android:padding="6dp"
+                android:adjustViewBounds="true"
                 android:background="@color/transparent"
-                android:src="@drawable/ic_icon2"
-                android:clickable="true"
-                android:fontFamily="sans-serif-light" />
+                android:src="@drawable/picto2"
+                android:clickable="true" />
             <TextView
                 android:gravity="center"
                 android:layout_weight="1"
@@ -81,10 +85,10 @@
                 android:layout_weight="2"
                 android:layout_width="wrap_content"
                 android:layout_height="10dp"
-                android:padding="2dp"
+                android:padding="5dp"
                 android:adjustViewBounds="true"
                 android:background="@color/transparent"
-                android:src="@drawable/ic_icon3"
+                android:src="@drawable/picto1"
                 android:clickable="true" />
             <TextView
                 android:gravity="center"
@@ -101,16 +105,18 @@
             android:layout_height="match_parent"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:id="@+id/tab4">
+            android:id="@+id/tab4"
+            android:gravity="center">
             <ImageView
-                android:id="@+id/profilB"
+                android:id="@+id/score"
                 android:layout_weight="2"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_width="wrap_content"
+                android:layout_height="10dp"
+                android:padding="5dp"
+                android:adjustViewBounds="true"
                 android:background="@color/transparent"
-                android:src="@drawable/ic_icon4"
-                android:clickable="true"
-                android:fontFamily="sans-serif-light" />
+                android:src="@drawable/picto4"
+                android:clickable="true" />
             <TextView
                 android:gravity="center"
                 android:layout_weight="1"
@@ -118,7 +124,7 @@
                 android:textSize="8dp"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:text="AUTRE STAT" />
+                android:text="Tableau score" />
 
         </LinearLayout>
     </LinearLayout>

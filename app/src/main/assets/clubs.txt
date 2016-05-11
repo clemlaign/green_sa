@@ -9,4 +9,6 @@ Fer_7 7
 Fer_8 8
 Fer_9 9
 Pitch 10
-Wedge 11
+Pitching_Wedge 11
+Gap_Wedge 12
+Sand_Wedge 13

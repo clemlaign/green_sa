@@ -6,8 +6,9 @@ package fr.insa_rennes.greensa.database.model;
  */
 public class Shot {
 
-    private int id; // id du trou
-    private int id_parcours, id_club;
+    private int id_course_hole; // id pour rassembler les tirs d'un même
+    private int id_hole; // id du trou
+    private int id_parcours, id_club; // id des elements present dans les fichiers txt
     private double coordLat_start, coordLong_start;
     private double coordLatTheo_end, coordLongTheo_end; // coordonnées que l'on souhaite atteindre
     private double coordLatReal_end, coordLongReal_end; // coordonnées réelles atteintes
@@ -15,8 +16,9 @@ public class Shot {
     private String wind; // format suivant: "vitesse degré"
     private String date; // format dd-MM-yyyy
 
-    public Shot(int id, int id_parcours, int id_club, double coordLat_start, double coordLong_start, double coordLatTheo_end, double coordLongTheo_end, double coordLatReal_end, double coordLongReal_end, double distance, double angle, String wind, String date) {
-        this.id = id;
+    public Shot(int id_course_hole, int id_hole, int id_parcours, int id_club, double coordLat_start, double coordLong_start, double coordLatTheo_end, double coordLongTheo_end, double coordLatReal_end, double coordLongReal_end, double distance, double angle, String wind, String date) {
+        this.id_course_hole = id_course_hole;
+        this.id_hole = id_hole;
         this.id_parcours = id_parcours;
         this.id_club = id_club;
         this.coordLat_start = coordLat_start;
@@ -31,12 +33,16 @@ public class Shot {
         this.date = date;
     }
 
-    public int getId() {
-        return id;
+    public int getId_course_hole() { return id_course_hole; }
+
+    public void setId_course_hole(int id_course_hole) { this.id_course_hole = id_course_hole; }
+
+    public int getId_hole() {
+        return id_hole;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setId_hole(int id_hole) {
+        this.id_hole = id_hole;
     }
 
     public int getId_parcours() {

@@ -82,9 +82,11 @@ public class graphStats extends Activity {
 
         ImageView homeButton = (ImageView)findViewById(R.id.homeButton);
         Button caract = (Button)findViewById(R.id.caracteristiques);
+        ImageView score = (ImageView)findViewById(R.id.score);
+        score.setAlpha(Stats.ALPHA_LEVEL);
 
         generalStats = (ImageView)findViewById(R.id.generalStats);
-        generalStats.setAlpha(0.5f);
+        generalStats.setAlpha(Stats.ALPHA_LEVEL);
         distance = (ImageView)findViewById(R.id.distanceStats);
         angle = (ImageView)findViewById(R.id.angleStats);
 
@@ -267,35 +269,34 @@ public class graphStats extends Activity {
             listeClub = (Spinner) dialog.findViewById(R.id.spinnerClub);
             listeParcours = (Spinner) dialog.findViewById(R.id.spinnerParcours);
             listeDate = (Spinner) dialog.findViewById(R.id.spinnerDate);
+
+            List<String> clubs = new ArrayList<String>();
+            clubs.add(CLUB_DEFAULT);
+            for(Club clubTmp : ClubsLoader.getClubs()){
+                clubs.add(clubTmp.getName());
+            }
+
+            List<String> courses = new ArrayList<String>();
+            courses.add(COURSE_DEFAULT);
+            for(Course courseTmp : CoursesLoader.getCourses()){
+                courses.add(courseTmp.getName());
+            }
+
+            List<String> dates = new ArrayList<String>();
+            dates.add(DATE_DEFAULT);
+            dates.add(DATE_TODAY);
+            dates.add(DATE_MONTH);
+            dates.add(DATE_YEAR);
+
+            //Le layout par défaut est android.R.layout.simple_spinner_dropdown_item
+            ArrayAdapter<String> adapterClubs = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, clubs);
+            ArrayAdapter<String> adapterCourses = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, courses);
+            ArrayAdapter<String> adapterDate = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, dates);
+
+            listeClub.setAdapter(adapterClubs);
+            listeParcours.setAdapter(adapterCourses);
+            listeDate.setAdapter(adapterDate);
         }
-
-        List<String> clubs = new ArrayList<String>();
-        clubs.add(CLUB_DEFAULT);
-        for(Club clubTmp : ClubsLoader.getClubs()){
-            clubs.add(clubTmp.getName());
-        }
-
-        List<String> courses = new ArrayList<String>();
-        courses.add(COURSE_DEFAULT);
-        for(Course courseTmp : CoursesLoader.getCourses()){
-            courses.add(courseTmp.getName());
-        }
-
-        List<String> dates = new ArrayList<String>();
-        dates.add(DATE_DEFAULT);
-        dates.add(DATE_TODAY);
-        //dates.add(DATE_WEEK);
-        dates.add(DATE_MONTH);
-        dates.add(DATE_YEAR);
-
-        //Le layout par défaut est android.R.layout.simple_spinner_dropdown_item
-        ArrayAdapter<String> adapterClubs = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, clubs);
-        ArrayAdapter<String> adapterCourses = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, courses);
-        ArrayAdapter<String> adapterDate = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, dates);
-
-        listeClub.setAdapter(adapterClubs);
-        listeParcours.setAdapter(adapterCourses);
-        listeDate.setAdapter(adapterDate);
 
         Button valider = (Button)dialog.findViewById(R.id.send);
         valider.setOnClickListener(new View.OnClickListener() {
@@ -391,14 +392,12 @@ public class graphStats extends Activity {
     public List<Shot> loadShotsFromQuery(String club, String course, String date){
         int tab_size = 0;
         int id_course = -1;
-        String where = "";
         String where_course = "";
 
         for(Course cTmp : CoursesLoader.getCourses()){
             if(cTmp.getName().equals(course)) {
                 id_course = cTmp.getId();
-                where_course = "id_course=?";
-                where = " WHERE ";
+                where_course = " AND id_course=?";
                 tab_size++;
                 break;
             }
@@ -409,8 +408,7 @@ public class graphStats extends Activity {
         for(Club cTmp : ClubsLoader.getClubs()){
             if(cTmp.getName().equals(club)) {
                 id_club = cTmp.getId();
-                where_club = "id_club=?";
-                where = " WHERE ";
+                where_club = " AND id_club=?";
                 tab_size++;
                 break;
             }
@@ -426,7 +424,7 @@ public class graphStats extends Activity {
                 if (id_club != -1) {
                     tab[1] = Integer.toString(id_club);
                     // on ajoute un AND, on a une condition sur course et club
-                    where_course = where_course + " AND ";
+                    where_course = " AND "+where_course;
                 }
             } else if (id_club != -1) // pas condition sur course mais sur club
                 tab[0] = Integer.toString(id_club);
@@ -439,32 +437,22 @@ public class graphStats extends Activity {
         // on modifie la requete sql suivant la date que l'on veut
         if(date.equals(DATE_TODAY)){
             formater = new SimpleDateFormat("dd-MM-yyy");
-            like_clause_date = "date LIKE '"+formater.format(aujourdhui)+"'";
+            like_clause_date = " AND date LIKE '"+formater.format(aujourdhui)+"'";
         }
         else if(date.equals(DATE_MONTH)){
             formater = new SimpleDateFormat("MM-yyyy");
-            like_clause_date = "date LIKE '%"+formater.format(aujourdhui)+"'";
+            like_clause_date = " AND date LIKE '%"+formater.format(aujourdhui)+"'";
         }
         else if(date.equals(DATE_YEAR)){
             formater = new SimpleDateFormat("yyyy");
-            like_clause_date = "date LIKE '%"+formater.format(aujourdhui)+"'";
+            like_clause_date = " AND date LIKE '%"+formater.format(aujourdhui)+"'";
         }
-
-        // on a une condition sur date
-        if(!like_clause_date.equals("")) {
-            where = " WHERE ";
-            if(id_club != -1) // on a une condition sur club
-                where_club = where_club + " AND ";
-            else if(id_course != -1) // pas de condition sur club mais on a une condition sur course
-                where_course = where_course+" AND ";
-        }
-
 
         List<Shot> listShots = null;
         // On recupère les tirs suivant les infos
         ShotDAO sdao = new ShotDAO(this);
         sdao.open();
-        listShots = sdao.selectElements( "SELECT * FROM Shot" + where + where_course + where_club + like_clause_date, tab);
+        listShots = sdao.selectElements( "SELECT * FROM Shot WHERE distance <> 0" + where_course + where_club + like_clause_date, tab);
         sdao.close();
 
         return listShots;
@@ -640,7 +628,7 @@ public class graphStats extends Activity {
         //setting text size of the axis title
         multiRendererLong.setAxisTitleTextSize(30);
         //setting text size of the graph lable
-        multiRendererLong.setLabelsTextSize(35);
+        multiRendererLong.setLabelsTextSize(25);
         //setting zoom buttons visiblity
         multiRendererLong.setZoomButtonsVisible(false);
         //setting pan enablity which uses graph to move on both axis
@@ -765,7 +753,7 @@ public class graphStats extends Activity {
         //setting text size of the axis title
         multiRenderer.setAxisTitleTextSize(30);
         //setting text size of the graph lable
-        multiRenderer.setLabelsTextSize(35);
+        multiRenderer.setLabelsTextSize(25);
         //setting zoom buttons visiblity
         multiRenderer.setZoomButtonsVisible(false);
         //setting pan enablity which uses graph to move on both axis

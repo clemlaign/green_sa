@@ -1,5 +1,7 @@
 package fr.insa_rennes.greensa;
 
+import android.os.AsyncTask;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -9,9 +11,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.Date;
+
+import fr.insa_rennes.greensa.map.AsyncResponse;
 
 /**
  * Created by Antoine on 08/04/2016.
@@ -40,28 +43,34 @@ import java.util.Date;
  *
  *  Unités :
     wind.speed Wind speed. Unit Default: meter/sec.
-    wind.deg Wind direction, degrees (meteorological)
+    wind.deg Wind direction, degrees (meteorological), 0° = vent vient du Nord et 180° = vent vient du Sud
 
  */
 
-public class WeatherReader {
+public class WeatherReader extends AsyncTask<Double, Void, JSONObject> {
 
     private static final String APPID = "fc7f2d6f55d2b25e62dfc457601169d9";
     private static long formerTimestamp = 0;
 
-    public static JSONObject read(double lattitude, double longitude){
+    public AsyncResponse delegate = null; //Call back interface
+    public static JSONObject weather;
+
+    public WeatherReader(AsyncResponse asyncResponse) {
+        delegate = asyncResponse; //Assigning call back interfacethrough constructor
+    }
+
+    public JSONObject read(double latitude, double longitude){
         JSONObject json = new JSONObject();
         try{
 
             Date atm = new Date();
 
             // On ne met à jour le temps que maximum 1 fois toutes les 5mins (la météo change peu)
-            if(atm.getTime() > formerTimestamp + 5*60000) {
+            //if(atm.getTime() > formerTimestamp + 5*60000) {
                 // On recupere le JSONObject
-                json = readJsonFromUrl("http://api.openweathermap.org/data/2.5/weather?APPID="+APPID+"&lat=" + Double.toString(lattitude) + "&lon=" + Double.toString(longitude));
-                formerTimestamp = atm.getTime(); // On actualise la date
-                System.out.println("On actualise !!");
-            }
+                json = readJsonFromUrl("http://api.openweathermap.org/data/2.5/weather?APPID="+APPID+"&lat=" + Double.toString(latitude) + "&lon=" + Double.toString(longitude));
+            //    formerTimestamp = atm.getTime(); // On actualise la date
+            //}
 
         } catch (IOException ioe){ }
           catch (JSONException je){ }
@@ -78,15 +87,28 @@ public class WeatherReader {
         return sb.toString();
     }
 
-    public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
+    private static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
         InputStream is = new URL(url).openStream();
         try {
             BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
             String jsonText = readAll(rd);
             JSONObject json = new JSONObject(jsonText);
             return json;
-        } finally {
+
+        }finally {
             is.close();
         }
+    }
+
+    protected JSONObject doInBackground(Double... params) {
+        double latitude = params[0];
+        double longitude = params[1];
+
+        return read(latitude, longitude);
+    }
+
+    protected void onPostExecute(JSONObject jsonObject) {
+        weather = jsonObject;
+        delegate.processFinish(jsonObject);
     }
 }

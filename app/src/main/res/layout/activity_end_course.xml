@@ -5,7 +5,7 @@
     android:paddingRight="0dp"
     android:paddingTop="0dp"
     android:paddingBottom="0dp"
-    tools:context="fr.insa_rennes.greensa.map.ChoiceCourseActivity">
+    tools:context="fr.insa_rennes.greensa.map.EndCourseActivity">
 
     <!-- HEADER NAVIGATION -->
     <LinearLayout
@@ -38,7 +38,7 @@
                 android:layout_height="match_parent"
                 android:layout_width="match_parent"
                 android:gravity="center"
-                android:text="@string/choix_parcours" />
+                android:text="@string/fin_parcours" />
         </LinearLayout>
         <LinearLayout
             android:layout_weight="1"
@@ -65,43 +65,54 @@
             android:id="@+id/scrollView">
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:layout_marginTop="20dp"
                 android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                android:gravity="center_horizontal">
+                android:layout_marginRight="15dp">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
-                    android:text="Veuillez choisir le parcours de golf sur lequel vous allez jouer parmis ceux dans la liste ci-dessous."/>
+                    android:text="Récupitulatif du parcours :"/>
+
+                <TableLayout
+                    android:layout_width="fill_parent"
+                    android:stretchColumns="0"
+                    android:layout_marginTop="30dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/tabScore9">
+                </TableLayout>
+
+                <TableLayout
+                    android:layout_width="fill_parent"
+                    android:stretchColumns="0"
+                    android:layout_marginTop="15dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/tabScore18">
+                </TableLayout>
 
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:orientation="vertical"
                     android:layout_marginTop="30dp"
-                    android:layout_marginBottom="30dp"
-                    android:orientation="horizontal"
                     android:gravity="center">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="10dp"
-                        android:text="Parcours :"/>
 
-                    <Spinner
-                        android:layout_width="fill_parent"
+                    <Button
+                        android:id="@+id/startButton"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:id="@+id/coursesSpinner"
-                        android:spinnerMode="dropdown"/>
+                        android:text="Lancer un nouveau parcours"/>
+
+
+                    <Button
+                        android:id="@+id/statsButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:text="Acceder aux statistiques"/>
                 </LinearLayout>
-
-                <Button
-                    android:id="@+id/startButton"
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content"
-                    android:text="Lancer le parcours"/>
             </LinearLayout>
 
 
