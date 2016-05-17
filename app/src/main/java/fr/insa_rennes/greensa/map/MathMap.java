@@ -25,15 +25,21 @@ public class MathMap {
         return dist;
     }
 
-    // Calcul l'angle entre 2 points
-    public static double calculateAngle(LatLng p1, LatLng p2){
+    // Calcul l'angle (positionObjectif, positionTir, positionBalleRelle)
+    public static double calculateAngle(LatLng p1, LatLng p2, LatLng p3){
 
-        /*double longDelta = posBalleReel.longitude - posTir.longitude;
-        double y = Math.sin(longDelta) * Math.cos(posBalleReel.latitude);
-        double x = Math.cos(posTir.latitude) * Math.sin(posBalleReel.latitude) -
-                Math.sin(posTir.latitude) * Math.cos(posBalleReel.latitude) * Math.cos(longDelta);
-        double angle = Math.toDegrees(Math.atan2(y, x));
-*/
-        return 0;
+        double longDelta = p3.longitude - p2.longitude;
+        double y = Math.sin(longDelta) * Math.cos(p3.latitude);
+        double x = Math.cos(p2.latitude) * Math.sin(p3.latitude) -
+                Math.sin(p2.latitude) * Math.cos(p3.latitude) * Math.cos(longDelta);
+        double angleP3P2 = Math.atan2(y, x); // Angle p3 p2 par rapport à l'horizontale
+
+        longDelta = p1.longitude - p2.longitude;
+        y = Math.sin(longDelta) * Math.cos(p1.latitude);
+        x = Math.cos(p2.latitude) * Math.sin(p1.latitude) -
+                Math.sin(p2.latitude) * Math.cos(p1.latitude) * Math.cos(longDelta);
+        double angleP1P2 = Math.atan2(y, x); // Angle p1 p2 par rapport à l'horizontale
+
+        return Math.toDegrees(angleP1P2 - angleP3P2);
     }
 }

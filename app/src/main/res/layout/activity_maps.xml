@@ -72,6 +72,28 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
         </fragment>
+    <TextView
+        android:id="@+id/infoText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_alignTop="@+id/map"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="60dp"/>
+    <TextView
+        android:id="@+id/infoTextIC"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_alignTop="@+id/infoText"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="60dp"/>
 
     <TextView
         android:id="@+id/windText"
@@ -79,6 +101,7 @@
         android:layout_height="wrap_content"
         android:textColor="@color/white"
         android:textStyle="bold"
+        android:textSize="16sp"
         android:layout_alignTop="@+id/map"
         android:layout_alignParentRight="true"
         android:layout_marginTop="5dp"
@@ -93,7 +116,7 @@
         android:scaleY="-1"
         android:layout_alignTop="@+id/windText"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="20dp"
         android:layout_marginRight="20dp"/>
 
     <include layout="@layout/menu_bottom_map"></include>

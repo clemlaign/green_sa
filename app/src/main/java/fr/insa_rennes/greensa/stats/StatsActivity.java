@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,7 +27,7 @@ import fr.insa_rennes.greensa.database.model.Shot;
 Activité page d'accueil des statistiques
  */
 
-public class Stats extends Activity {
+public class StatsActivity extends Activity {
 
     public static final float ALPHA_LEVEL = 0.4f; // niveau de transparence pour elements du menu non select.
 
@@ -51,7 +50,7 @@ public class Stats extends Activity {
         homeButton.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-                Intent activity = new Intent(Stats.this, MainActivity.class);
+                Intent activity = new Intent(StatsActivity.this, MainActivity.class);
                 startActivity(activity);
             }
 
@@ -68,8 +67,8 @@ public class Stats extends Activity {
         distance.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-                Intent activity = new Intent(Stats.this, graphStats.class);
-                activity.putExtra("choix", graphStats.DISTANCE);
+                Intent activity = new Intent(StatsActivity.this, GraphStatsActivity.class);
+                activity.putExtra("choix", GraphStatsActivity.DISTANCE);
                 startActivity(activity);
             }
 
@@ -78,8 +77,8 @@ public class Stats extends Activity {
         angle.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-                Intent activity = new Intent(Stats.this, graphStats.class);
-                activity.putExtra("choix", graphStats.ANGLE);
+                Intent activity = new Intent(StatsActivity.this, GraphStatsActivity.class);
+                activity.putExtra("choix", GraphStatsActivity.ANGLE);
                 startActivity(activity);
             }
 
@@ -94,39 +93,13 @@ public class Stats extends Activity {
 */
         //sdao.close();
 
-
-        // On recupère les tirs suivant les infos
-        ShotDAO sdao = new ShotDAO(this);
-        sdao.open();
-        List<Shot> listShots = sdao.selectElements("SELECT * FROM Shot WHERE distance <> 0", null);
-        sdao.close();
-
-        float moyenne = 0;
-        float variance = 0;
-        for(Shot s : listShots){
-            moyenne += s.getDistance();
-        }
-        moyenne /= listShots.size();
-
-        for(Shot s : listShots){
-            variance += Math.pow(s.getDistance() - moyenne, 2);
-        }
-        variance /=listShots.size();
-
-        moyenne = (float)(Math.round(moyenne*10.0)/10.0);
-        variance = (float)(Math.round(variance*10.0)/10.0);
-
-        double x = 1.96*(variance/Math.sqrt(listShots.size()));
-
-        System.out.println("Moyenne : "+moyenne+"\nVariance : "+variance + "\nX : "+x);
-
         ActualizeStats();
     }
 
     // Boite de dialogue pour les settings
     protected Dialog onCreateDialog(int id) {
 
-        dialog=new Dialog(Stats.this);
+        dialog=new Dialog(StatsActivity.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_stats_settings);
 
@@ -137,7 +110,7 @@ public class Stats extends Activity {
             public void onClick(View v) {
                 // On affiche une AlertDialog pour confirmer
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                        Stats.this);
+                        StatsActivity.this);
 
                 // set title
                 alertDialogBuilder.setTitle("Suppression des données");
@@ -150,7 +123,7 @@ public class Stats extends Activity {
                             public void onClick(DialogInterface dialogAlert,int id) {
                                 // On supprime les données
 
-                                ShotDAO sdao = new ShotDAO(Stats.this);
+                                ShotDAO sdao = new ShotDAO(StatsActivity.this);
                                 sdao.open();
                                 sdao.clear();
                                 sdao.close();
@@ -189,6 +162,7 @@ public class Stats extends Activity {
 
         ShotDAO sdao = new ShotDAO(this);
         sdao.open();
+        // distance != 0 car on prend pas les putts
         List<Shot> list = sdao.selectElements("SELECT * FROM " + sdao.TABLE_NAME + " WHERE distance <> 0", null);
         sdao.close();
 

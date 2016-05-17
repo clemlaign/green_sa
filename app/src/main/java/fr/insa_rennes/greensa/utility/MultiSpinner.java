@@ -73,6 +73,10 @@ public class MultiSpinner extends Spinner implements
             selected[i] = false;
     }
 
+    public boolean isSelected(int id){
+        return selected[id];
+    }
+
     public void setItemSelected(int id){
         if(id < selected.length)
             selected[id] = true;

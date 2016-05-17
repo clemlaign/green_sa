@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -43,7 +44,8 @@ import java.util.List;
 
 import fr.insa_rennes.greensa.MainActivity;
 import fr.insa_rennes.greensa.R;
-import fr.insa_rennes.greensa.WeatherReader;
+import fr.insa_rennes.greensa.utility.AsyncResponse;
+import fr.insa_rennes.greensa.utility.WeatherReader;
 import fr.insa_rennes.greensa.database.ClubsLoader;
 import fr.insa_rennes.greensa.database.CoursesLoader;
 import fr.insa_rennes.greensa.database.controller.ShotDAO;
@@ -60,6 +62,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Button enregistrerPos = null;
     private FloatingActionButton fab = null;
     private TextView header_title = null;
+    private TextView infoText = null;
+    private TextView infoTextIC = null;
     private ImageView imageWind = null;
     private TextView nextHole = null;
     private Marker markerPosition;
@@ -110,6 +114,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         multiSpinner = (MultiSpinner) findViewById(R.id.toolsSpinner);
         enregistrerPos = (Button)findViewById(R.id.enregistrerPos);
         header_title = (TextView)findViewById(R.id.heading_text);
+        infoText = (TextView)findViewById(R.id.infoText); // contient la légende sur les rayons des cercles de distance
+        infoTextIC = (TextView)findViewById(R.id.infoTextIC); // contient les infos sur l'Intervalle de Conf
 
         imageWind = (ImageView)findViewById(R.id.arrow_wind);
 
@@ -191,8 +197,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     markerObjectif = mMap.addMarker(new MarkerOptions().position(positionObjectif).title("Objectif").draggable(true));
 
                     drawOnMap.addPolyline(mMap, new LatLng[]{positionTir, positionObjectif, hole});
-                    drawOnMap.addLabel(mMap, Double.toString(MathMap.calculateDistance(positionTir, positionObjectif)) + " m", "posTir-posObj", new LatLng((positionTir.latitude + positionObjectif.latitude) / 2, (positionTir.longitude + positionObjectif.longitude) / 2 + drawOnMap.ECART_TEXTDIST_LINE));
-                    drawOnMap.addLabel(mMap, Double.toString(MathMap.calculateDistance(positionObjectif, hole)) + " m", "posObj-posHole", new LatLng((hole.latitude + positionObjectif.latitude) / 2, (hole.longitude + positionObjectif.longitude) / 2 + drawOnMap.ECART_TEXTDIST_LINE));
+                    drawOnMap.addLabel(mMap, Double.toString(MathMap.calculateDistance(positionTir, positionObjectif)) + " m", "posTir-posObj", new LatLng((positionTir.latitude + positionObjectif.latitude) / 2, (positionTir.longitude + positionObjectif.longitude) / 2 + drawOnMap.ECART_TEXTDIST_LINE), Color.WHITE);
+                    drawOnMap.addLabel(mMap, Double.toString(MathMap.calculateDistance(positionObjectif, hole)) + " m", "posObj-posHole", new LatLng((hole.latitude + positionObjectif.latitude) / 2, (hole.longitude + positionObjectif.longitude) / 2 + drawOnMap.ECART_TEXTDIST_LINE), Color.WHITE);
 
                     multiSpinner.setItemSelected(0);
 
@@ -202,12 +208,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        clubsSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //confInterval
-            }
-        });
+
 
         // On remplit le spinner club
         List<String> list = new ArrayList<String>();
@@ -218,11 +219,77 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         ArrayAdapter<String> adapterClubs = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, list);
         clubsSpinner.setAdapter(adapterClubs);
 
+        clubsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                // On récupère le club selectionné
+                int id_club = 0;
+                String club = (String) clubsSpinner.getSelectedItem();
+
+                for (Club cl : ClubsLoader.getClubs()) {
+                    if (cl.getName().equals(club)) {
+                        id_club = cl.getId();
+                        break;
+                    }
+                }
+
+                // On recupère les tirs suivant les infos
+                ShotDAO sdao = new ShotDAO(MapsActivity.this);
+                sdao.open();
+                List<Shot> listShots = sdao.selectElements("SELECT * FROM Shot WHERE distance <> 0 AND id_club=?", new String[]{Integer.toString(id_club)});
+                sdao.close();
+
+                // si pas de tirs enregistrés avec ce club
+                if(listShots.size() != 0) {
+                    float moyenne = 0;
+                    float variance = 0;
+                    for (Shot s : listShots) {
+                        moyenne += s.getDistance();
+                    }
+                    moyenne /= listShots.size();
+
+                    for (Shot s : listShots) {
+                        variance += Math.pow(s.getDistance() - moyenne, 2);
+                    }
+                    variance /= listShots.size();
+
+                    // Indice de confiance avec une loi normale à 80%
+                    double var = 1.2816 * (variance / Math.sqrt(listShots.size()));
+
+                    int min = (int) (moyenne - var);// on arrondit à l'unité
+                    int max = (int) (moyenne + var);// on arrondit à l'unité
+
+                    if(min < 0)
+                        min = 0;
+
+                    drawOnMap.updateCircles("confInterval", new double[]{min, max});
+
+                    infoTextIC.setText("IC : " + min + " à " + max + " m");
+                }
+                else if(infoTextIC.getVisibility() == TextView.VISIBLE) { // si l'intervalle de conf est affiché
+                    Toast.makeText(MapsActivity.this, "Vous n'avez pas encore tiré avec ce club", Toast.LENGTH_SHORT).show();
+                    drawOnMap.updateCircles("confInterval", false);
+                    infoTextIC.setText("IC : 0m - 0m");
+                }
+                else {
+                    infoTextIC.setText("IC : 0m - 0m");
+                    drawOnMap.updateCircles("confInterval", false);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+
         List<String> tools = new ArrayList<String>();
         tools.add("Afficher distances");
         tools.add("Afficher cercles / trou");
         tools.add("Afficher cercles / position actuelle");
-        tools.add("Afficher intervalle de confiance de 95%");
+        tools.add("Afficher intervalle de confiance à 80%");
 
 
         multiSpinner.setItems(tools, "Outils", new MultiSpinner.MultiSpinnerListener() {
@@ -234,6 +301,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 drawOnMap.updateCircles("hole", selected[1]);
                 drawOnMap.updateCircles("positionTir", selected[2]);
                 drawOnMap.updateCircles("confInterval", selected[3]);
+                if(selected[1] || selected[2])
+                    infoText.setVisibility(TextView.VISIBLE);
+                else
+                    infoText.setVisibility(TextView.INVISIBLE);
+
+                if(selected[3])
+                    infoTextIC.setVisibility(TextView.VISIBLE);
+                else
+                    infoTextIC.setVisibility(TextView.INVISIBLE);
             }
         });
     }
@@ -268,7 +344,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //Si le GPS est activé on s'abonne
             if("gps".equals(provider)) {
                 abonnementGPS();
-                System.out.println("NICEEEE");
             }
         }
 
@@ -349,7 +424,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onCameraChange(CameraPosition cameraPosition) {
                 if (bearing != cameraPosition.bearing) {
                     bearing = cameraPosition.bearing;
-                    imageWind.setRotation(windDegre-bearing);
+                    imageWind.setRotation(windDegre - bearing);
                     System.out.println(bearing);
                 }
             }
@@ -366,7 +441,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
             // En cours de déplacement
-            // On met à jour les traits des distances entre les markers
+            // On met à jour les traits des distances entre les markers ainsi que les textes contenants les distances
             public void onMarkerDrag(Marker markerDrag) {
                 List<LatLng> list = new ArrayList<LatLng>();
 
@@ -377,14 +452,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 list.add(hole);
 
                 drawOnMap.setPolylinePoints(list);
-                drawOnMap.updateLabel("posTir-posObj", Double.toString(MathMap.calculateDistance(positionTir, positionObjectif)) + " m", new LatLng((positionTir.latitude + positionObjectif.latitude) / 2, (positionTir.longitude + positionObjectif.longitude) / 2 + drawOnMap.ECART_TEXTDIST_LINE));
-                drawOnMap.updateLabel("posObj-posHole", Double.toString(MathMap.calculateDistance(positionObjectif, hole)) + " m", new LatLng((hole.latitude + positionObjectif.latitude) / 2, (hole.longitude + positionObjectif.longitude) / 2 + drawOnMap.ECART_TEXTDIST_LINE));
+                drawOnMap.updateLabel("posTir-posObj", Double.toString(MathMap.calculateDistance(positionTir, positionObjectif)) + " m", new LatLng((positionTir.latitude + positionObjectif.latitude) / 2, (positionTir.longitude + positionObjectif.longitude) / 2 + drawOnMap.ECART_TEXTDIST_LINE), Color.WHITE);
+                drawOnMap.updateLabel("posObj-posHole", Double.toString(MathMap.calculateDistance(positionObjectif, hole)) + " m", new LatLng((hole.latitude + positionObjectif.latitude) / 2, (hole.longitude + positionObjectif.longitude) / 2 + drawOnMap.ECART_TEXTDIST_LINE), Color.WHITE);
             }
         });
 
         nextHole();
-        // Sans gps, appeler ongreen (il faut qu'elle renvoie oui si l'utilisateur a dit oui et inversement)
-        //avec gps, holeproximity doit créer une alerte de proximité et du coup appeler onGreen si on on se situe a sur le green
     }
 
     // Signaler à l'utilisateur qu'il doit se positionner sur le point de départ avant de commencer
@@ -398,7 +471,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 // On récupère la dernière position connue
                 Location loc = gps.lastKnownLocation("gps");
-                if(loc != null)
+                if (loc != null)
                     position = new LatLng(loc.getLatitude(), loc.getLongitude());
                 if (position != null) {
                     positionTir = position;
@@ -413,7 +486,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             .target(new LatLng((positionTir.latitude + hole.latitude) / 2, (positionTir.longitude + hole.longitude) / 2))
                             .bearing(bearing)
                             .tilt(0)
-                            .zoom(18)
+                            .zoom(17)
                             .build();
 
                     // On applique les paramètres de la caméra
@@ -430,7 +503,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 double kmh = (Math.round(Double.parseDouble(output.getJSONObject("wind").get("speed").toString()) * 3.6 * 10.0) / 10.0); // km/h = m/s * 3.6
 
                                 weather_text.setText(kmh + " km/h");
-                                windDegre = (float)Double.parseDouble(output.getJSONObject("wind").get("deg").toString());
+                                windDegre = (float) Double.parseDouble(output.getJSONObject("wind").get("deg").toString());
                                 imageWind.setRotation(windDegre);
 
                             } catch (JSONException e) {
@@ -487,12 +560,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 initialiseCircles();
 
+                infoText.setVisibility(TextView.INVISIBLE);
+                infoTextIC.setVisibility(TextView.INVISIBLE);
+
                 // On remet les paramètres des tools comme au début
                 multiSpinner.unselectAll();
                 multiSpinner.setItemSelected(0);
 
                 //On actualise le vent à chaque enregistrement de position
-                weather = new WeatherReader(new AsyncResponse() {
+                /*weather = new WeatherReader(new AsyncResponse() {
 
                     // On modifie le TextView contenant les infos sur le vent
                     public void processFinish(JSONObject output) {
@@ -511,7 +587,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 });
                 weather.execute(positionTir.latitude, positionTir.longitude);
-
+*/
                 Toast.makeText(MapsActivity.this, "Position enregistrée !", Toast.LENGTH_SHORT).show();
 
                 dialog.dismiss();
@@ -551,7 +627,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .target(hole)
                     .bearing(bearing)
                     .tilt(0)
-                    .zoom(18)
+                    .zoom(17)
                     .build();
 
             // On applique les paramètres de la caméra
@@ -561,6 +637,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             markerHole = mMap.addMarker(new MarkerOptions().position(hole).title("Trou"));
 
             header_title.setText("Trou "+Integer.toString(current_hole+1));
+            infoText.setVisibility(TextView.INVISIBLE);
+            infoTextIC.setVisibility(TextView.INVISIBLE);
 
             // On modifie le texte indiquant le prochain trou
             if(current_hole + 1 == course.getHoles().length)
@@ -611,7 +689,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 // Si on a pas selectionnée d'objectif, on choisit comme objectif le trou
-                if(markerObjectif == null)
+                if (markerObjectif == null)
                     positionObjectif = hole;
 
                 putts[current_hole] = Integer.parseInt(listePutts.getSelectedItem().toString());
@@ -673,16 +751,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void initialiseCircles(){
-        drawOnMap.addCircles(mMap, "positionTir", positionTir, 20, 2, new int[]{100, 6, 97, 176});
-        drawOnMap.addCircles(mMap, "positionTir", positionTir, 50, 2, new int[]{100, 7, 159, 234});
-        drawOnMap.addCircles(mMap, "positionTir", positionTir, 100, 2, new int[]{100, 4, 155, 140});
+        // On définit les rayons - les positions sont fixes
+        int rayons[];
+        if(distance_hole_positionTir > 80) {
+            rayons = new int[]{10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
+            infoText.setText("Cercle bleu tous les 10 m");
+        }
+        else{
+            rayons = new int[]{5,10,15,20,25,30,35,40,45,50};
+            infoText.setText("Cercle bleu tous les 5 m");
+        }
 
-        drawOnMap.addCircles(mMap, "hole", hole, 20, 2, new int[]{100, 6, 97, 176});
-        drawOnMap.addCircles(mMap, "hole", hole, 50, 2, new int[]{100, 7, 159, 234});
-        drawOnMap.addCircles(mMap, "hole", hole, 100, 2, new int[]{100, 4, 155, 140});
+        // On crée les cercles autour du joueur
+        for(int i=1;i<rayons.length;i++)
+            drawOnMap.addCircles(mMap, "positionTir", positionTir, 10*i, 2, new int[]{0, 17, 36, 117});
+        drawOnMap.addCircles(mMap, "positionTir", positionTir, 100, 2, new int[]{70, 64, 157, 40});
 
-        drawOnMap.addCircles(mMap, "confInterval", positionTir, 120, 5, new int[]{0, 255, 0,0});
-        drawOnMap.addCircles(mMap, "confInterval", positionTir, 150, 5, new int[]{0, 255, 0, 0});
+        // On crée les cercles autour du trou
+        for(int i=1;i<rayons.length;i++)
+            drawOnMap.addCircles(mMap, "hole", hole, 10*i, 2, new int[]{0, 17, 36, 117});
+        drawOnMap.addCircles(mMap, "hole", hole, 100, 2, new int[]{70, 64, 157, 40});
+
+        // On crée les cercles qui englobe l'intervalle de confiance
+        drawOnMap.addCircles(mMap, "confInterval", positionTir, 0, 5, new int[]{0, 255, 0,0});
+        drawOnMap.addCircles(mMap, "confInterval", positionTir, 0, 5, new int[]{0, 255, 0, 0});
+
+        // On crée les labels associés à l'intervalle de conf
+        //drawOnMap.addLabel(mMap, "0", "confIntervalMin", new LatLng(0,0), Color.RED);
+        //drawOnMap.addLabel(mMap, "0", "confIntervalMax", new LatLng(0,0), Color.RED);
     }
 
     // (lat1, lon1) debut (avant tir)
@@ -721,7 +817,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         else {
             // Calcul distance
             // On enregistre les infos entre posTir et posBalleReel
-            final int R = 6371; // Radius of the earth
+            /*final int R = 6371; // Radius of the earth
 
             double latDistance = Math.toRadians(posBalleReel.latitude - posTir.latitude);
             double lonDistance = Math.toRadians(posBalleReel.longitude - posTir.longitude);
@@ -729,14 +825,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     + Math.cos(Math.toRadians(posTir.latitude)) * Math.cos(Math.toRadians(posBalleReel.latitude))
                     * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
             double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            double dist = R * c * 1000; // convert to meters
+            double dist = R * c * 1000; // convert to meters*/
+
+            double dist = MathMap.calculateDistance(posTir, posBalleReel);
 
             // Calcul angle
-            double longDelta = posBalleReel.longitude - posTir.longitude;
+            /*double longDelta = posBalleReel.longitude - posTir.longitude;
             double y = Math.sin(longDelta) * Math.cos(posBalleReel.latitude);
             double x = Math.cos(posTir.latitude) * Math.sin(posBalleReel.latitude) -
                     Math.sin(posTir.latitude) * Math.cos(posBalleReel.latitude) * Math.cos(longDelta);
-            double angle = Math.toDegrees(Math.atan2(y, x));
+            double angle = Math.toDegrees(Math.atan2(y, x));*/
+
+            double angle = MathMap.calculateAngle(posBalleTheo, posTir, posBalleReel);
 
             // On récupère le club selectionné
             int id_club = 0;

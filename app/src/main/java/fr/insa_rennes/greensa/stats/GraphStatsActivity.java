@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -21,7 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.achartengine.ChartFactory;
-import org.achartengine.GraphicalView;
 import org.achartengine.chart.BarChart;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
@@ -42,7 +40,7 @@ import fr.insa_rennes.greensa.database.model.Club;
 import fr.insa_rennes.greensa.database.model.Course;
 import fr.insa_rennes.greensa.database.model.Shot;
 
-public class graphStats extends Activity {
+public class GraphStatsActivity extends Activity {
 
     private Dialog dialog;
     private Spinner listeClub, listeParcours, listeDate;
@@ -83,10 +81,10 @@ public class graphStats extends Activity {
         ImageView homeButton = (ImageView)findViewById(R.id.homeButton);
         Button caract = (Button)findViewById(R.id.caracteristiques);
         ImageView score = (ImageView)findViewById(R.id.score);
-        score.setAlpha(Stats.ALPHA_LEVEL);
+        score.setAlpha(StatsActivity.ALPHA_LEVEL);
 
         generalStats = (ImageView)findViewById(R.id.generalStats);
-        generalStats.setAlpha(Stats.ALPHA_LEVEL);
+        generalStats.setAlpha(StatsActivity.ALPHA_LEVEL);
         distance = (ImageView)findViewById(R.id.distanceStats);
         angle = (ImageView)findViewById(R.id.angleStats);
 
@@ -99,7 +97,7 @@ public class graphStats extends Activity {
         homeButton.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-                Intent activity = new Intent(graphStats.this, MainActivity.class);
+                Intent activity = new Intent(GraphStatsActivity.this, MainActivity.class);
                 startActivity(activity);
             }
 
@@ -108,7 +106,7 @@ public class graphStats extends Activity {
         generalStats.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-                Intent activity = new Intent(graphStats.this, Stats.class);
+                Intent activity = new Intent(GraphStatsActivity.this, StatsActivity.class);
                 startActivity(activity);
             }
 
@@ -261,7 +259,7 @@ public class graphStats extends Activity {
 
     protected Dialog onCreateDialog(int id) {
 
-        dialog=new Dialog(graphStats.this);
+        dialog=new Dialog(GraphStatsActivity.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialogstats);
 
@@ -356,7 +354,7 @@ public class graphStats extends Activity {
     public void showDistance(){
         heading_text.setText("Statistiques - Distance");
         distance.setAlpha(1.0f);
-        angle.setAlpha(Stats.ALPHA_LEVEL);
+        angle.setAlpha(StatsActivity.ALPHA_LEVEL);
         stat = DISTANCE;
 
         // On recupère les tirs suivant les caractéristiques
@@ -374,7 +372,7 @@ public class graphStats extends Activity {
     public void showAngle(){
         heading_text.setText("Statistiques - Angle");
         angle.setAlpha(1.0f);
-        distance.setAlpha(Stats.ALPHA_LEVEL);
+        distance.setAlpha(StatsActivity.ALPHA_LEVEL);
         stat = ANGLE;
 
         // On recupère les tirs suivant les caractéristiques
@@ -424,7 +422,7 @@ public class graphStats extends Activity {
                 if (id_club != -1) {
                     tab[1] = Integer.toString(id_club);
                     // on ajoute un AND, on a une condition sur course et club
-                    where_course = " AND "+where_course;
+                   // where_course = where_course;
                 }
             } else if (id_club != -1) // pas condition sur course mais sur club
                 tab[0] = Integer.toString(id_club);
@@ -689,8 +687,8 @@ public class graphStats extends Activity {
 
         mChart.clear(); // on vide la liste de graphiques
 
-        mChart.add( ChartFactory.getBarChartView(graphStats.this, datasetShort, multiRenderer, BarChart.Type.DEFAULT) );
-        mChart.add( ChartFactory.getBarChartView(graphStats.this, datasetLong, multiRendererLong, BarChart.Type.DEFAULT) );
+        mChart.add( ChartFactory.getBarChartView(GraphStatsActivity.this, datasetShort, multiRenderer, BarChart.Type.DEFAULT) );
+        mChart.add( ChartFactory.getBarChartView(GraphStatsActivity.this, datasetLong, multiRendererLong, BarChart.Type.DEFAULT) );
     }
 
     public void loadAngle(List<Shot> listShot){
@@ -814,7 +812,7 @@ public class graphStats extends Activity {
 
         mChart.clear(); // on vide la liste de graphiques
 
-        mChart.add( ChartFactory.getBarChartView(graphStats.this, datasetAngle, multiRenderer, BarChart.Type.DEFAULT) );
+        mChart.add( ChartFactory.getBarChartView(GraphStatsActivity.this, datasetAngle, multiRenderer, BarChart.Type.DEFAULT) );
     }
 
 }

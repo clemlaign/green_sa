@@ -1,4 +1,4 @@
-package fr.insa_rennes.greensa;
+package fr.insa_rennes.greensa.utility;
 
 import android.os.AsyncTask;
 
@@ -13,8 +13,6 @@ import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Date;
-
-import fr.insa_rennes.greensa.map.AsyncResponse;
 
 /**
  * Created by Antoine on 08/04/2016.

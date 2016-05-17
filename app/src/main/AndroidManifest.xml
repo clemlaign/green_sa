@@ -39,10 +39,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".stats.Stats"
+            android:name=".stats.StatsActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".stats.graphStats"
+            android:name=".stats.GraphStatsActivity"
             android:screenOrientation="portrait" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -73,6 +73,11 @@
             android:name=".map.ChoiceCourseActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".map.EndCourseActivity" >
+        </activity>
+        <activity
+            android:name=".HelpActivity"
+            android:label="@string/title_activity_help"
+            android:theme="@style/AppTheme.NoActionBar" >
         </activity>
     </application>
 

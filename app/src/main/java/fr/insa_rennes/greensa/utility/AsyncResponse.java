@@ -1,4 +1,4 @@
-package fr.insa_rennes.greensa.map;
+package fr.insa_rennes.greensa.utility;
 
 import org.json.JSONObject;
 

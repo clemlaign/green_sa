@@ -9,7 +9,7 @@ import android.widget.Button;
 import fr.insa_rennes.greensa.database.ClubsLoader;
 import fr.insa_rennes.greensa.database.CoursesLoader;
 import fr.insa_rennes.greensa.map.ChoiceCourseActivity;
-import fr.insa_rennes.greensa.stats.Stats;
+import fr.insa_rennes.greensa.stats.StatsActivity;
 
 public class MainActivity extends Activity {
 
@@ -30,19 +30,27 @@ public class MainActivity extends Activity {
         Button stats = (Button)findViewById(R.id.stats);
         Button help = (Button)findViewById(R.id.help);
 
+        newGame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent activity = new Intent(MainActivity.this, ChoiceCourseActivity.class);
+                startActivity(activity);
+            }
+        });
+
         stats.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View v) {
-                Intent activity = new Intent(MainActivity.this, Stats.class);
+                Intent activity = new Intent(MainActivity.this, StatsActivity.class);
                 startActivity(activity);
             }
 
         });
 
-        newGame.setOnClickListener(new View.OnClickListener() {
+        help.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent activity = new Intent(MainActivity.this, ChoiceCourseActivity.class);
+                Intent activity = new Intent(MainActivity.this, HelpActivity.class);
                 startActivity(activity);
             }
         });

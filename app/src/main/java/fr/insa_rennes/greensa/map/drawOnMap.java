@@ -35,7 +35,7 @@ public class drawOnMap {
     private static Map<String, MarkerOptions> labelOptionList = new HashMap<String, MarkerOptions>();
     private static boolean labelVisibility = true;
 
-    public static final double ECART_TEXTDIST_LINE = 0.0003;
+    public static final double ECART_TEXTDIST_LINE = 0.0004;
 
     public static void clear(GoogleMap mMap){
         mMap.clear();
@@ -66,13 +66,13 @@ public class drawOnMap {
             polyline.setPoints(list);
     }
 
-    public static void addLabel(GoogleMap mMap, String strText, String cle, LatLng position){
+    public static void addLabel(GoogleMap mMap, String strText, String cle, LatLng position, int color){
         Rect boundsText = new Rect();
 
         Paint paintText = new Paint();
         paintText.setTextSize(60);
         paintText.setTextAlign(Paint.Align.CENTER);
-        paintText.setColor(Color.WHITE);
+        paintText.setColor(color);
         paintText.getTextBounds(strText, 0, strText.length(), boundsText);
 
         Bitmap.Config conf = Bitmap.Config.ARGB_8888;
@@ -90,7 +90,7 @@ public class drawOnMap {
         labelList.put(cle, mMap.addMarker(markerOptions));
     }
 
-    public static void updateLabel(String cle, String newText, LatLng newPos){
+    public static void updateLabel(String cle, String newText, LatLng newPos, int color){
         Marker m = labelList.get(cle);
 
         if(m != null) {
@@ -171,28 +171,4 @@ public class drawOnMap {
         }
     }
 
-/*
-    public static boolean isLabelVisibility() {
-        return labelVisibility;
-    }
-
-    public static void setLabelVisibility(boolean labelVisibility) {
-        drawOnMap.labelVisibility = labelVisibility;
-    }
-
-    public static boolean getCirclesHole(){
-        return circlesHole;
-    }
-
-    public static void setCirclesHole(boolean value){
-        circlesHole = value;
-    }
-
-    public static boolean getCirclesPosition(){
-        return circlesPosition;
-    }
-
-    public static void setCirclesPosition(boolean value){
-        circlesPosition = value;
-    }*/
 }
