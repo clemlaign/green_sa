@@ -1,21 +1,97 @@
 package fr.insa_rennes.greensa.database.model;
 
 /**
- * Created by Antoine on 07/03/2016.s
- * Modèle pour les coups tirés
+ * Classe modele pour representer un tir/coup
  */
 public class Shot {
 
-    private int id_course_hole; // id pour rassembler les tirs d'un même
-    private int id_hole; // id du trou
-    private int id_parcours, id_club; // id des elements present dans les fichiers txt
-    private double coordLat_start, coordLong_start;
-    private double coordLatTheo_end, coordLongTheo_end; // coordonnées que l'on souhaite atteindre
-    private double coordLatReal_end, coordLongReal_end; // coordonnées réelles atteintes
-    private double distance, angle; // distance en mètre et angle (deviation) en degré du tir
-    private String wind; // format suivant: "vitesse degré"
-    private String date; // format dd-MM-yyyy
+    /**
+     * ID du parcours dans la base de donnees (incrementation)
+     */
+    private int id_course_hole;
 
+    /**
+     * ID du trou
+     */
+    private int id_hole;
+
+    /**
+     * ID du parcours
+     */
+    private int id_parcours;
+
+    /**
+     * ID du club
+     */
+    private int id_club;
+
+    /**
+     * Latitude position depart (position de tir)
+     */
+    private double coordLat_start;
+
+    /**
+     * Longitude position depart (position de tir)
+     */
+    private double coordLong_start;
+
+    /**
+     * Latitude position objectif (theorique)
+     */
+    private double coordLatTheo_end;
+
+    /**
+     * Longitude position objectif (theorique)
+     */
+    private double coordLongTheo_end;
+
+    /**
+     * Latitude position de la balle (reelle)
+     */
+    private double coordLatReal_end;
+
+    /**
+     * Longitude position de la balle (reelle)
+     */
+    private double coordLongReal_end;
+
+    /**
+     * Distance du tir en metre
+     */
+    private double distance;
+
+    /**
+     * Angle de deviation : (position objectif, position tir, position balle) en degre
+     */
+    private double angle;
+
+    /**
+     * Donnees sur le vent au format suivant : "vitesse degre"
+     */
+    private String wind;
+
+    /**
+     * Date du tir/coup au format dd-MM-yyyy
+     */
+    private String date;
+
+    /**
+     * Constructeur
+     * @param id_course_hole
+     * @param id_hole
+     * @param id_parcours
+     * @param id_club
+     * @param coordLat_start
+     * @param coordLong_start
+     * @param coordLatTheo_end
+     * @param coordLongTheo_end
+     * @param coordLatReal_end
+     * @param coordLongReal_end
+     * @param distance
+     * @param angle
+     * @param wind
+     * @param date
+     */
     public Shot(int id_course_hole, int id_hole, int id_parcours, int id_club, double coordLat_start, double coordLong_start, double coordLatTheo_end, double coordLongTheo_end, double coordLatReal_end, double coordLongReal_end, double distance, double angle, String wind, String date) {
         this.id_course_hole = id_course_hole;
         this.id_hole = id_hole;

@@ -10,19 +10,30 @@ import java.util.List;
 import fr.insa_rennes.greensa.database.model.Shot;
 
 /**
- * Created by Antoine on 07/03/2016.
- * Opérations de lecture et écriture pour les tires
+ * Cette classe s'occupe seulement de la lecture et ecriture dans la table tir<br/>
+ *
+ * Herite de la classe DAOBase<br/>
  */
 public class ShotDAO extends DAOBase {
 
+    /**
+     * Nom de la table contenant les tirs
+     */
     public static final String TABLE_NAME = "Shot";
 
+    /**
+     * Constructeur de la classe ShotDAO
+     *
+     * @param pContext Contexte actuel
+     */
     public ShotDAO(Context pContext) {
         super(pContext);
     }
 
     /**
-     * @param s le coup à ajouter à la base
+     * Methode pour ajouter un tir
+     *
+     * @param s Le tir a ajouter a la base
      */
     public void ajouter(Shot s) {
         ContentValues values = new ContentValues();
@@ -46,21 +57,25 @@ public class ShotDAO extends DAOBase {
     }
 
     /**
-     * @param id l'identifiant du coup à supprimer
+     * Methode pour supprimer un tir
+     *
+     * @param id l'identifiant du tir a supprimer
      */
     public void delete(int id) {
 
     }
 
     /**
-     * @param s le coup modifié
+     * Methode pour modifier un tir
+     *
+     * @param s Le tir a modifier
      */
     public void update(Shot s) {
 
     }
 
     /**
-     * on vide la table
+     * Methode pour vider la table
      */
     public void clear() {
         mDb.delete(TABLE_NAME, null, null);

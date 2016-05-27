@@ -54,47 +54,179 @@ import fr.insa_rennes.greensa.database.model.Course;
 import fr.insa_rennes.greensa.database.model.Shot;
 import fr.insa_rennes.greensa.utility.MultiSpinner;
 
-
+/**
+ * Cette classe gere la partie interface de jeu
+ */
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    /**
+     * Liste deroulante de clubs
+     */
     private Spinner clubsSpinner = null;
+
+    /**
+     * Liste a choix multiple pour les outils de mesure a afficher
+     */
     private MultiSpinner multiSpinner = null;
+
+    /**
+     * Bouton d'enregistrement de position de la balle
+     */
     private Button enregistrerPos = null;
+
+    /**
+     * Bouton d'ajout d'objectif
+     */
     private FloatingActionButton fab = null;
+
+    /**
+     * Texte contenant le numero du trou actuel
+     */
     private TextView header_title = null;
+
+    /**
+     * Texte informatif lorsqu'on affiche un outil de mesure
+     */
     private TextView infoText = null;
+
+    /**
+     * Texte informatif lorqu'on affiche l'intervalle de confiance
+     */
     private TextView infoTextIC = null;
+
+    /**
+     * Image de la fleche pour le sens du vent
+     */
     private ImageView imageWind = null;
+
+    /**
+     * Texte contenant le numero du trou suivant
+     */
     private TextView nextHole = null;
+
+    /**
+     * Marqueur de la position de tir
+     */
     private Marker markerPosition;
+
+    /**
+     * Marqueur de la position du trou actuel
+     */
     private Marker markerHole;
+
+    /**
+     * Marqueur de la position de l'objectif
+     */
     private Marker markerObjectif;
 
+    /**
+     * Parcours joue
+     */
     private Course course = null;
+
+    /**
+     * Coordonnees du trou actuel
+     */
     private LatLng hole;
+
+    /**
+     * Coordonnees de la position de tir
+     */
     private LatLng positionTir;
+
+    /**
+     * Coordonnees de la position de l'objectif
+     */
     private LatLng positionObjectif;
+
+    /**
+     * Position de l'utilisateur en temps reel
+     */
     private LatLng position;
+
+    /**
+     * ID du trou actuel
+     */
     private int current_hole;
 
+    /**
+     * Orientation du vent (degre)
+     */
     private float windDegre;
-    private float bearing; // Orientation de la map (degré) : on s'en sert pour l'angle de la fleche du vent
+
+    /**
+     * Orientation de la map (degre) : on s'en sert pour l'angle de la fleche du vent
+     */
+    private float bearing;
+
+    /**
+     * Carte GoogleMap
+     */
     private GoogleMap mMap;
+
+    /**
+     * Objet pour la lecture de la meteo
+     */
     private WeatherReader weather;
+
+    /**
+     * Objet gerant le GPS
+     */
     private GpsLocation gps;
+
+    /**
+     * ID du parcours joue
+     */
     private int id_course;
 
+    /**
+     * Distance entre le trou et la position de tir
+     */
     private double distance_hole_positionTir;
 
+    /**
+     * Liste deroulante pour les putts a la fin d'un trou
+     */
     private Spinner listePutts = null;
+
+    /**
+     * Liste deroulante pour les penalites a la fin d'un trou
+     */
+    private Spinner listePenalites = null;
+
+    /**
+     * Boite de dialogue pour rentrer les putts et penalites a la fin d'un trou
+     */
     private Dialog dialog;
 
-    // Pour l'affichage du tableau des scores
-    int[] nb_tirs;
-    int[] putts;
-    int[] par;
+    /**
+     * Nombre de tirs/coups par trou pour l'affichage des scores
+     */
+    private int[] nb_tirs;
 
-    @Override
+    /**
+     * Nombre de putts par trou pour l'affichage des scores
+     */
+    private int[] putts;
+
+    /**
+     * Par du trou pour l'affichage des scores
+     */
+    private int[] par;
+
+    /**
+     * Methode permettant de sauvegarder l'etat de la classe lorsqu'on quitte l'application
+     * @param outState Etat actuel
+     */
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
+    /**
+     * Methode d'initialisation des elements de l'interface.
+     * Gere les evenements sur les boutons et listes deroulantes
+     * @param savedInstanceState
+     */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
@@ -192,18 +324,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View view) {
 
                 // On crée le markerObjectif si la map est chargée et qu'il n'y a pas de markerObjectif
-                if (mMap != null && markerObjectif == null) {
-                    positionObjectif = new LatLng((positionTir.latitude + hole.latitude) / 2, (positionTir.longitude + hole.longitude) / 2);
-                    markerObjectif = mMap.addMarker(new MarkerOptions().position(positionObjectif).title("Objectif").draggable(true));
+                if (mMap != null){
+                    if(markerObjectif == null) {
+                        positionObjectif = new LatLng((positionTir.latitude + hole.latitude) / 2, (positionTir.longitude + hole.longitude) / 2);
+                        markerObjectif = mMap.addMarker(new MarkerOptions().position(positionObjectif).title("Objectif").draggable(true));
 
-                    drawOnMap.addPolyline(mMap, new LatLng[]{positionTir, positionObjectif, hole});
-                    drawOnMap.addLabel(mMap, Double.toString(MathMap.calculateDistance(positionTir, positionObjectif)) + " m", "posTir-posObj", new LatLng((positionTir.latitude + positionObjectif.latitude) / 2, (positionTir.longitude + positionObjectif.longitude) / 2 + drawOnMap.ECART_TEXTDIST_LINE), Color.WHITE);
-                    drawOnMap.addLabel(mMap, Double.toString(MathMap.calculateDistance(positionObjectif, hole)) + " m", "posObj-posHole", new LatLng((hole.latitude + positionObjectif.latitude) / 2, (hole.longitude + positionObjectif.longitude) / 2 + drawOnMap.ECART_TEXTDIST_LINE), Color.WHITE);
+                        // On modifie la polyline en ajoutant un 3e point (positionObjectif)
+                        List<LatLng> list = new ArrayList<LatLng>();
+                        list.add(position);
+                        list.add(positionObjectif);
+                        list.add(hole);
 
-                    multiSpinner.setItemSelected(0);
+                        drawOnMap.setPolylinePoints(list);
 
-                    fab.setAlpha(0.5f);
-                    Toast.makeText(MapsActivity.this, "Vous pouvez tirer après avoir défini votre objectif", Toast.LENGTH_LONG).show();
+                        // On calcule les distances
+                        drawOnMap.updateLabel("posTir-posObj", Double.toString(MathMap.calculateDistance(positionTir, positionObjectif)) + " m", new LatLng((positionTir.latitude + positionObjectif.latitude) / 2, (positionTir.longitude + positionObjectif.longitude) / 2 + drawOnMap.ECART_TEXTDIST_LINE), Color.WHITE);
+                        drawOnMap.updateLabel("posObj-posHole", Double.toString(MathMap.calculateDistance(positionObjectif, hole)) + " m", new LatLng((hole.latitude + positionObjectif.latitude) / 2, (hole.longitude + positionObjectif.longitude) / 2 + drawOnMap.ECART_TEXTDIST_LINE), Color.WHITE);
+
+                        // On affiche les labels utiles
+                        drawOnMap.updateLabelsVisibility("posTir-posObj", true);
+                        drawOnMap.updateLabelsVisibility("posObj-posHole", true);
+
+                        // On cache les labels inutiles
+                        drawOnMap.updateLabelsVisibility("posTir-posHole", false);
+
+                        multiSpinner.setItemSelected(0);
+
+                        fab.setAlpha(0.5f);
+                        Toast.makeText(MapsActivity.this, "Vous pouvez tirer après avoir défini votre objectif", Toast.LENGTH_LONG).show();
+                    }
+                }
+                else{
+                    Toast.makeText(MapsActivity.this, "Impossible de choisir un objectif, attendez le chargement de la carte", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -296,7 +448,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             public void onItemsSelected(boolean[] selected) {
 
-                drawOnMap.updateLabelsVisibility(selected[0]);
+                drawOnMap.updateLabelsVisibility("", selected[0]);
 
                 drawOnMap.updateCircles("hole", selected[1]);
                 drawOnMap.updateCircles("positionTir", selected[2]);
@@ -314,35 +466,56 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
-    /*
-    * Classe interne GpsLocation
-    * Récupère la lattitude et la longitude de l'appareil
-    * Abonnement/désabonnement permet d'économiser la batterie en activant/désactivant le gps
+    /**
+    * Classe interne GpsLocation<br/>
+    * Récupère la lattitude et la longitude de l'appareil<br/>
+    * Abonnement/désabonnement permet d'économiser la batterie en activant/désactivant le gps<br/>
     * Toutes les manip à faire suite à un changement de position sont à faire dans la méthode onLocationChanged
     */
     public class GpsLocation implements LocationListener {
 
+        /**
+         * Objet gerant le service de localisation
+         */
         private LocationManager locationManager;
+        //private String provider;
 
+        /**
+         * Initialisation du service de localisation
+         * @param context
+         */
         public GpsLocation(Context context) {
             this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         }
 
-        // Lorsque la position change
+        /**
+         * Methode appelee lorsque l'utilisateur change de position
+         * On garde en memoire sa nouvelle position
+         * @param location Position de l'utilisateur
+         */
         public void onLocationChanged(Location location) {
             position = new LatLng(location.getLatitude(), location.getLongitude());
         }
 
+        /**
+         * Methode appelee lorsque le GPS est desactive
+         * @param provider Fournisseur de la localisation
+         */
         public void onProviderDisabled(final String provider) {
             //Si le GPS est désactivé on se désabonne
-            if("gps".equals(provider)) {
+            if(provider.equals(LocationManager.GPS_PROVIDER)){// || provider.equals(LocationManager.NETWORK_PROVIDER)) {
                 desabonnementGPS();
             }
         }
 
+        /**
+         * Methode appelee lorsque le GPS est active
+         * @param provider Fournisseur de la localisation
+         */
         public void onProviderEnabled(final String provider) {
             //Si le GPS est activé on s'abonne
-            if("gps".equals(provider)) {
+            //if(provider.equals(LocationManager.GPS_PROVIDER)){// || provider.equals(LocationManager.NETWORK_PROVIDER)) {
+            if("gps".equals(provider)){
                 abonnementGPS();
             }
         }
@@ -359,18 +532,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 try {
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
                 } catch (SecurityException e) {
-                    System.out.println(e.getMessage());
+                    Toast.makeText(MapsActivity.this, "Problème récupération position GPS", Toast.LENGTH_LONG).show();
                 }
             }
-        }
-
-        public Location lastKnownLocation(String provider){
-            try {
-                return locationManager.getLastKnownLocation(provider);
-            } catch(SecurityException e){
-            }
-
-            return null;
+            /*else if(locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
+                provider = LocationManager.NETWORK_PROVIDER;
+                try {
+                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+                } catch (SecurityException e) {
+                    Toast.makeText(MapsActivity.this, "Problème récupération position GPS", Toast.LENGTH_LONG).show();
+                }
+            }*/
+            else
+                Toast.makeText(MapsActivity.this, "Impossible d'utiliser le GPS", Toast.LENGTH_LONG).show();
         }
 
         /**
@@ -384,16 +558,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         }
+
+        /**
+         * Methode pour obtenir la derniere position de l'utilisateur
+         * @param provider Fournisseur de la localisation
+         * @return Dernieres coordonnees de l'utilisateur connues
+         */
+        public LatLng lastKnownLocation(String provider){
+            try {
+                Location location = locationManager.getLastKnownLocation(provider);
+
+                return new LatLng(location.getLatitude(), location.getLongitude());
+            } catch(SecurityException e){
+            }
+
+            return null;
+        }
     }
 
 
+    /** Methode appelee lorsqu'on reprend l'activite
+     * On reactive le GPS
+     */
     public void onResume() {
         super.onResume();
 
         // On s'abonne de nouveau
         gps.abonnementGPS();
     }
-    @Override
+
+    /**
+     * Methode appelee lorsque l'activite est suspendue
+     * On desactive le GPS pour economiser la batterie
+     */
     public void onPause() {
         super.onPause();
 
@@ -403,13 +600,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
+     * Manipulation de la carte une fois disponible<br/>
+     * Cette methode callback est appelee une fois que la carte est prete a etre utilisee.
+     * Contient les Listener lorsqu'on deplace un marqueur ou on fait pivoter la carte.
+     * On lance le trou numero un
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -419,6 +613,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
 
+        //On modifie l'orientation de la fleche du vent lorsqu'on fait pivoter la carte
         mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
             @Override
             public void onCameraChange(CameraPosition cameraPosition) {
@@ -460,7 +655,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         nextHole();
     }
 
-    // Signaler à l'utilisateur qu'il doit se positionner sur le point de départ avant de commencer
+    /**
+     * Methode pour recuperer la position du point de depart du trou.
+     * Signale à l'utilisateur qu'il doit se positionner sur le point de départ avant de commencer
+     */
     public void positionDepart(){
 
         final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
@@ -470,16 +668,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(DialogInterface dialog, int which) {
 
                 // On récupère la dernière position connue
-                Location loc = gps.lastKnownLocation("gps");
-                if (loc != null)
-                    position = new LatLng(loc.getLatitude(), loc.getLongitude());
+                position = gps.lastKnownLocation("gps");
                 if (position != null) {
                     positionTir = position;
-                    distance_hole_positionTir = MathMap.calculateDistance(positionTir, hole);
 
                     markerPosition = mMap.addMarker(new MarkerOptions().position(positionTir).title("Départ"));
 
-                    initialiseCircles();
+                    initialiseCirclesLabels();
 
                     // On peut mettre à jour la caméra ! On la centre entre le départ et le trou
                     CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -520,13 +715,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         alertDialog.show();
     }
 
-    // On enregistre la position: prêt pour le tir
-    // endOfHole = true si on a fini le trou
-    public void positionSaved(boolean endOfHole) {
-
-        // Si on enregistre le dernier tir, on indique la position de la balle comme étant celle du trou
-        if(endOfHole)
-            position = markerHole.getPosition();
+    /**
+     * On enregistre la position de la balle
+     * Methode appelee lors du clique sur le bouton "Enregistrer position"
+     * @param endOfHole TRUE si on a fini le trou, FALSE sinon
+     */
+    public void positionSaved(final boolean endOfHole) {
 
         // Si on a pas selectionnée d'objectif, on choisit comme objectif le trou
         if(markerObjectif == null)
@@ -543,8 +737,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             .setPositiveButton("Oui", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
 
-                addShot(positionTir, positionObjectif, position, 0);
+                // Si on enregistre le dernier tir, on indique la position de la balle comme étant celle du trou
+                if(endOfHole)
+                    position = markerHole.getPosition();
 
+                // On calcule la distance
+                double distance = addShot(positionTir, positionObjectif, position, 0, 0);
+
+                // On clear la map pour placer de nouveaux markers
                 drawOnMap.clear(mMap);
 
                 markerObjectif = null;
@@ -556,9 +756,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 markerHole = mMap.addMarker(new MarkerOptions().position(hole).title("Trou"));
                 markerPosition = mMap.addMarker(new MarkerOptions().position(positionTir).title("Position Tir"));
 
-                distance_hole_positionTir = MathMap.calculateDistance(positionTir, hole);
-
-                initialiseCircles();
+                initialiseCirclesLabels();
 
                 infoText.setVisibility(TextView.INVISIBLE);
                 infoTextIC.setVisibility(TextView.INVISIBLE);
@@ -567,28 +765,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 multiSpinner.unselectAll();
                 multiSpinner.setItemSelected(0);
 
-                //On actualise le vent à chaque enregistrement de position
-                /*weather = new WeatherReader(new AsyncResponse() {
-
-                    // On modifie le TextView contenant les infos sur le vent
-                    public void processFinish(JSONObject output) {
-                        try {
-                            TextView weather_text = (TextView) findViewById(R.id.windText);
-                            double kmh = (Math.round(Double.parseDouble(output.getJSONObject("wind").get("speed").toString()) * 3.6*10.0)/10.0); // km/h = m/s * 3.6
-
-                            weather_text.setText(kmh + " km/h");
-
-                            windDegre = (float)Double.parseDouble(output.getJSONObject("wind").get("deg").toString());
-                            imageWind.setRotation(windDegre);
-
-                        } catch (JSONException e){
-                            System.out.println(e.getMessage()+"\n\n");
-                        }
-                    }
-                });
-                weather.execute(positionTir.latitude, positionTir.longitude);
-*/
-                Toast.makeText(MapsActivity.this, "Position enregistrée !", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MapsActivity.this, "Distance du tir : "+Double.toString(distance)+ " m", Toast.LENGTH_LONG).show();
 
                 dialog.dismiss();
                     }
@@ -605,8 +782,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         alertDialog.show();
     }
 
-    //Trou suivant
-    //On efface tous les marqueurs précédents et on créé les nouveaux
+    /**
+     * Methode pour passer au trou suivant.
+     * On efface tous les marqueurs précédents et on créé les nouveaux.
+     * Si le parcours est fini, on lance l'activite de fin de parcours
+     */
     public void nextHole() {
 
         current_hole++;
@@ -664,25 +844,40 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    // Boite de dialogue pour enregistrement des putts
+    /**
+     * Boite de dialogue pour enregistrement des putts et penalites.
+     * Affiche deux listes deroulantes : putts et penalites
+     * @param id ID dialogue
+     * @return Boite de dialogue
+     */
     protected Dialog onCreateDialog(int id) {
 
         dialog=new Dialog(MapsActivity.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_endofhole);
 
-        if(listePutts == null) {
+        if(listePutts == null || listePenalites == null) {
             listePutts = (Spinner) dialog.findViewById(R.id.spinnerPutts);
+            listePenalites = (Spinner) dialog.findViewById(R.id.spinnerPenalites);
 
             List<String> putts = new ArrayList<String>();
             for(int i=0;i<10;i++)
                 putts.add(Integer.toString(i));
 
+            List<String> penalites = new ArrayList<String>();
+            for(int i=0;i<5;i++)
+                penalites.add(Integer.toString(i));
+
             //Le layout par défaut est android.R.layout.simple_spinner_dropdown_item
             ArrayAdapter<String> adapterPutts = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, putts);
+            ArrayAdapter<String> adapterPenalites = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, penalites);
 
             listePutts.setAdapter(adapterPutts);
+            listePenalites.setAdapter(adapterPenalites);
         }
+
+        listePutts.setSelection(0);
+        listePenalites.setSelection(0);
 
         Button enregistrer = (Button)dialog.findViewById(R.id.save);
         enregistrer.setOnClickListener(new View.OnClickListener() {
@@ -693,8 +888,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     positionObjectif = hole;
 
                 putts[current_hole] = Integer.parseInt(listePutts.getSelectedItem().toString());
+                nb_tirs[current_hole] += Integer.parseInt(listePenalites.getSelectedItem().toString());
 
-                addShot(positionTir, positionObjectif, hole, Integer.parseInt(listePutts.getSelectedItem().toString()));
+                addShot(positionTir, positionObjectif, hole, Integer.parseInt(listePutts.getSelectedItem().toString()), Integer.parseInt(listePenalites.getSelectedItem().toString()));
                 // on cache la fenetre
                 dialog.dismiss();
 
@@ -706,8 +902,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return dialog;
     }
 
-
-
+    /*
     // Appelée par la AlertReceiver
     public void onGreen() {
         final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
@@ -750,7 +945,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    public void initialiseCircles(){
+    */
+
+    /**
+     * Methode qui initialise les cercles et labels pour les futurs affichages des outils de mesures.
+     * Cette methode est appelee apres avoir fait un clear de la carte
+     */
+    public void initialiseCirclesLabels(){
+
+        // On calcule la distance tir-trou maintenant car elle n'est pas modifiée
+        distance_hole_positionTir = MathMap.calculateDistance(positionTir, hole);
+
         // On définit les rayons - les positions sont fixes
         int rayons[];
         if(distance_hole_positionTir > 80) {
@@ -764,26 +969,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // On crée les cercles autour du joueur
         for(int i=1;i<rayons.length;i++)
-            drawOnMap.addCircles(mMap, "positionTir", positionTir, 10*i, 2, new int[]{0, 17, 36, 117});
-        drawOnMap.addCircles(mMap, "positionTir", positionTir, 100, 2, new int[]{70, 64, 157, 40});
+            drawOnMap.addCircle(mMap, "positionTir", positionTir, 10 * i, 2, new int[]{0, 17, 36, 117});
+        drawOnMap.addCircle(mMap, "positionTir", positionTir, 100, 2, new int[]{70, 64, 157, 40});
 
         // On crée les cercles autour du trou
         for(int i=1;i<rayons.length;i++)
-            drawOnMap.addCircles(mMap, "hole", hole, 10*i, 2, new int[]{0, 17, 36, 117});
-        drawOnMap.addCircles(mMap, "hole", hole, 100, 2, new int[]{70, 64, 157, 40});
+            drawOnMap.addCircle(mMap, "hole", hole, 10 * i, 2, new int[]{0, 17, 36, 117});
+        drawOnMap.addCircle(mMap, "hole", hole, 100, 2, new int[]{70, 64, 157, 40});
 
         // On crée les cercles qui englobe l'intervalle de confiance
-        drawOnMap.addCircles(mMap, "confInterval", positionTir, 0, 5, new int[]{0, 255, 0,0});
-        drawOnMap.addCircles(mMap, "confInterval", positionTir, 0, 5, new int[]{0, 255, 0, 0});
+        drawOnMap.addCircle(mMap, "confInterval", positionTir, 0, 5, new int[]{0, 255, 0, 0});
+        drawOnMap.addCircle(mMap, "confInterval", positionTir, 0, 5, new int[]{0, 255, 0, 0});
 
-        // On crée les labels associés à l'intervalle de conf
-        //drawOnMap.addLabel(mMap, "0", "confIntervalMin", new LatLng(0,0), Color.RED);
-        //drawOnMap.addLabel(mMap, "0", "confIntervalMax", new LatLng(0,0), Color.RED);
+        ////////////////////////////////////////////////////
+        // On cree les labels pour afficher les distances //
+        ////////////////////////////////////////////////////
+        drawOnMap.addLabel(mMap, "0 m", "posTir-posObj", new LatLng(0, 0), Color.WHITE);
+        drawOnMap.updateLabelsVisibility("posTir-posObj", false); // Invisible par defaut
+
+        drawOnMap.addLabel(mMap, "0 m", "posObj-posHole", new LatLng(0, 0), Color.WHITE);
+        drawOnMap.updateLabelsVisibility("posObj-posHole", false); // Invisible par defaut
+
+        drawOnMap.addLabel(mMap, distance_hole_positionTir + " m", "posTir-posHole", new LatLng((positionTir.latitude + hole.latitude) / 2, (positionTir.longitude + hole.longitude) / 2 + drawOnMap.ECART_TEXTDIST_LINE), Color.WHITE);
+
+        // On crée la ligne pour representer la distance
+        drawOnMap.addPolyline(mMap, new LatLng[]{positionTir, hole});
     }
 
-    // (lat1, lon1) debut (avant tir)
-    // (lat2, lon2) fin (après tir)
-    public void addShot(LatLng posTir, LatLng posBalleTheo, LatLng posBalleReel, int putts){
+    /**
+     * Methode pour enregistrer les tirs/coups dans la base de donnees
+     * @param posTir Coordonnees de la position de tir de l'utilisateur
+     * @param posBalleTheo Coordonnees de la position de l'objectif
+     * @param posBalleReel Coordonnees de la position de la balle apres tir
+     * @param putts Nombre de putts entre a la fin du trou
+     * @param penalites Nombre de penalites entre a la fin du trou
+     * @return La distance du tir en metre
+     */
+    public double addShot(LatLng posTir, LatLng posBalleTheo, LatLng posBalleReel, int putts, int penalites){
 
         // On ouvre la bdd
         ShotDAO sdao = new ShotDAO(this);
@@ -808,6 +1030,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         String date = dateFormat.format(actuelle);
 
+        double dist = 0;
+
         // Si le nb de putts > 0, on ajoute les putts
         // Sinon nb putts = 0 donc on enregistre le dernier coup qui va au trou
         if(putts > 0){
@@ -816,43 +1040,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         else {
             // Calcul distance
-            // On enregistre les infos entre posTir et posBalleReel
-            /*final int R = 6371; // Radius of the earth
+            dist = MathMap.calculateDistance(posTir, posBalleReel);
 
-            double latDistance = Math.toRadians(posBalleReel.latitude - posTir.latitude);
-            double lonDistance = Math.toRadians(posBalleReel.longitude - posTir.longitude);
-            double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                    + Math.cos(Math.toRadians(posTir.latitude)) * Math.cos(Math.toRadians(posBalleReel.latitude))
-                    * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
-            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            double dist = R * c * 1000; // convert to meters*/
+            // On n'enregistre pas les distances > 500m (s'il y a un bug, on ne met pas de donnés faussées)
+            if(dist < 400) {
+                // Calcul l'angle (positionObjectif, positionTir, positionBalleRelle)
+                double angle = MathMap.calculateAngle(posBalleTheo, posTir, posBalleReel);
 
-            double dist = MathMap.calculateDistance(posTir, posBalleReel);
+                // On récupère le club selectionné
+                int id_club = 0;
+                String club = (String) clubsSpinner.getSelectedItem();
 
-            // Calcul angle
-            /*double longDelta = posBalleReel.longitude - posTir.longitude;
-            double y = Math.sin(longDelta) * Math.cos(posBalleReel.latitude);
-            double x = Math.cos(posTir.latitude) * Math.sin(posBalleReel.latitude) -
-                    Math.sin(posTir.latitude) * Math.cos(posBalleReel.latitude) * Math.cos(longDelta);
-            double angle = Math.toDegrees(Math.atan2(y, x));*/
-
-            double angle = MathMap.calculateAngle(posBalleTheo, posTir, posBalleReel);
-
-            // On récupère le club selectionné
-            int id_club = 0;
-            String club = (String) clubsSpinner.getSelectedItem();
-
-            for (Club cl : ClubsLoader.getClubs()) {
-                if (cl.getName().equals(club)) {
-                    id_club = cl.getId();
-                    break;
+                for (Club cl : ClubsLoader.getClubs()) {
+                    if (cl.getName().equals(club)) {
+                        id_club = cl.getId();
+                        break;
+                    }
                 }
-            }
 
-            sdao.ajouter(new Shot(id, current_hole + 1, id_course, id_club, posTir.latitude, posTir.longitude, posBalleTheo.latitude, posBalleTheo.latitude, posBalleReel.latitude, posBalleReel.longitude, dist, angle, wind, date));
+                sdao.ajouter(new Shot(id, current_hole + 1, id_course, id_club, posTir.latitude, posTir.longitude, posBalleTheo.latitude, posBalleTheo.latitude, posBalleReel.latitude, posBalleReel.longitude, dist, angle, wind, date));
+            }
+        }
+
+        // On ajoute des pénalités s'il y en a
+        if(penalites > 0){
+            for(int i=0;i<penalites;i++)
+                sdao.ajouter(new Shot(id + i, current_hole + 1, id_course, -1, 0, 0, 0, 0, 0, 0, 0, 0, wind, date));
         }
 
         sdao.close();
+
+        return dist;
     }
 
 }

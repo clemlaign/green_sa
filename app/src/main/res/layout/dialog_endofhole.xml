@@ -17,7 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
-            android:text="Veuillez entrer le nombre de putts. Vous allez ensuite passer au trou suivant ou à la fin du parcours."
+            android:text="Veuillez entrer le nombre de putts et vos pénalités. Vous allez ensuite passer au trou suivant ou à la fin du parcours."
             android:layout_marginBottom="30dp"/>
         <LinearLayout
             android:layout_width="fill_parent"
@@ -37,6 +37,28 @@
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/spinnerPutts"
+                android:layout_weight="1"
+                android:spinnerMode="dropdown" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="30dp"
+            android:gravity="center">
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:layout_weight="2"
+                android:text="Pénalités :"
+                android:textSize="18dp" />
+
+            <Spinner
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/spinnerPenalites"
                 android:layout_weight="1"
                 android:spinnerMode="dropdown" />
         </LinearLayout>

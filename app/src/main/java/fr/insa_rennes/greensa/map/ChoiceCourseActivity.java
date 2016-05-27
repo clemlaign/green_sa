@@ -17,9 +17,20 @@ import fr.insa_rennes.greensa.R;
 import fr.insa_rennes.greensa.database.CoursesLoader;
 import fr.insa_rennes.greensa.database.model.Course;
 
+/**
+ * Cette classe affiche un spinner permettant de choisir le parcours sur lequel l'utilisateur veut jouer.<br/>
+ * L'id du parcours choisi est ensuite transmis a l'activite MapsActivity
+ */
 public class ChoiceCourseActivity extends Activity {
 
+    /**
+     * Liste deroulante des parcours
+     */
     private Spinner coursesSpinner = null;
+
+    /**
+     * Liste contenant les parcours
+     */
     private List<Course> courses = null;
 
     @Override
@@ -56,7 +67,7 @@ public class ChoiceCourseActivity extends Activity {
                 Intent activity = new Intent(ChoiceCourseActivity.this, MapsActivity.class);
 
                 int id = 0;
-                // On recupere le parcours selectionné
+                // On recupere le parcours selectionne
                 String elem = (String) coursesSpinner.getSelectedItem();
 
                 for(Course course : courses){
@@ -65,7 +76,7 @@ public class ChoiceCourseActivity extends Activity {
                         break;
                     }
                 }
-                // On transmet l'id du parcours selectionné
+                // On transmet l'id du parcours selectionne
                 activity.putExtra("id_parcours", id);
                 startActivity(activity);
             }

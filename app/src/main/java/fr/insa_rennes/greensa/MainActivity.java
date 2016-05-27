@@ -11,6 +11,10 @@ import fr.insa_rennes.greensa.database.CoursesLoader;
 import fr.insa_rennes.greensa.map.ChoiceCourseActivity;
 import fr.insa_rennes.greensa.stats.StatsActivity;
 
+/**
+ * Cette classe affiche la page d'accueil et redirige l'utilisateur vers les differentes activites.<br/>
+ * Elle lance la lecture des fichiers holes.txt et clubs.txt
+ */
 public class MainActivity extends Activity {
 
     @Override

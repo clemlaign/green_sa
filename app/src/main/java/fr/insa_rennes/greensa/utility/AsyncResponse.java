@@ -3,8 +3,7 @@ package fr.insa_rennes.greensa.utility;
 import org.json.JSONObject;
 
 /**
- * Created by Antoine on 28/04/2016.
- * Interface permettant de créer une methode call back pour la méteo
+ * Interface permettant de creer une methode call back pour la meteo
  */
 public interface AsyncResponse {
     void processFinish(JSONObject output);

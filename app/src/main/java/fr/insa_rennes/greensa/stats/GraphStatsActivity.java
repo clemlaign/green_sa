@@ -40,10 +40,36 @@ import fr.insa_rennes.greensa.database.model.Club;
 import fr.insa_rennes.greensa.database.model.Course;
 import fr.insa_rennes.greensa.database.model.Shot;
 
+/**
+ * Cette classe gere l'affiche des graphiques
+ * Elle affiche le contenu du menu Distance et Angle
+ * Elle lit dans la bdd les donnees suivant les caracteristiques, les traite et les affiche
+ */
 public class GraphStatsActivity extends Activity {
 
+    /**
+     * Boite de dialogue pour l'affichage des caracteristiques
+     */
     private Dialog dialog;
-    private Spinner listeClub, listeParcours, listeDate;
+
+    /**
+     * Liste deroulante de clubs
+     */
+    private Spinner listeClub;
+
+    /**
+     * Liste deroulante de parcours
+     */
+    private Spinner listeParcours;
+
+    /**
+     * Liste deroulante de dates
+     */
+    private Spinner listeDate;
+
+    /**
+     * Liste de graphiques (Pour afficher plusieurs graphiques dans un meme menu)
+     */
     private List<View> mChart;
 
     private ImageView leftArrow = null;
@@ -53,10 +79,24 @@ public class GraphStatsActivity extends Activity {
     private ImageView distance = null;
     private ImageView angle = null;
 
-    private int stat; // prend la valeur DISTANCE ou ANGLE
-    private int currentChart; // id du graphique affiché
+    /**
+     * Indique le menu actuel (prend la valeur DISTANCE ou ANGLE)
+     */
+    private int stat;
 
+    /**
+     * ID du graphique affiché (en lien avec la liste de graphiques)
+     */
+    private int currentChart;
+
+    /**
+     * Parametre de distance pour scroller une page
+     */
     private static final int SWIPE_MIN_DISTANCE = 120;
+
+    /**
+     * Parametre de vitesse pour scroller une page
+     */
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 
     private static final String CLUB_DEFAULT = "Tous";
@@ -70,7 +110,11 @@ public class GraphStatsActivity extends Activity {
     public static final int DISTANCE = 0;
     public static final int ANGLE = 1;
 
-    @Override
+    /**
+     * Methode d'intialisation
+     * On appelle la methode pour afficher les stats sur la distance ou l'angle en fonction de la valeur de la variable stat
+     * @param savedInstanceState
+     */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_graph_stats);
@@ -157,65 +201,11 @@ public class GraphStatsActivity extends Activity {
                 showAngle();
                 break;
         }
-
-/*
-        XYSeries series = new XYSeries("London Temperature hourly");
-        int hour;
-        for (hour=0;hour<24;hour++) {
-            series.add(hour, (int)(Math.random()*30));
-        }
-        mCurrentSeries = series;
-
-        // Now we create the renderer
-        renderer = new XYSeriesRenderer();
-        renderer.setLineWidth(2);
-        renderer.setColor(Color.BLACK);
-        renderer.setFillPoints(true);
-
-        // Include low and max value
-        renderer.setDisplayBoundingPoints(true);
-        // we add point markers
-        renderer.setPointStyle(PointStyle.CIRCLE);
-        //renderer.setPointStrokeWidth(10);
-        renderer.setDisplayChartValues(true);
-        renderer.setChartValuesTextSize(30);
-        renderer.setChartValuesSpacing(20); // ecart entre le marqueur et la valeur
-        renderer.setLineWidth(5);
-
-        mRenderer = new XYMultipleSeriesRenderer();
-        mRenderer.addSeriesRenderer(renderer);
-
-        // We want to avoid black border
-        mRenderer.setMarginsColor(Color.argb(0x00, 0xff, 0x00, 0x00)); // transparent margins
-        // Disable Pan on two axis
-        mRenderer.setPanEnabled(true, false);
-        mRenderer.setYAxisMax(30);
-        mRenderer.setYAxisMin(0);
-        mRenderer.setXAxisMin(0);
-        mRenderer.setShowGrid(true); // we show the grid
-        mRenderer.setPointSize(5); // epaisseur des points
-        mRenderer.setGridColor(Color.BLACK);
-        mRenderer.setXLabelsColor(Color.BLACK);
-        mRenderer.setYLabelsColor(0, Color.BLACK);
-        mRenderer.setAxesColor(Color.BLACK);
-        mRenderer.setBackgroundColor(Color.WHITE);
-        //mRenderer.setAxisTitleTextSize(20);
-        mRenderer.setLabelsTextSize(30);
-        mRenderer.setLegendTextSize(20);
-        mRenderer.setZoomEnabled(true, false);
-
-        mDataset = new XYMultipleSeriesDataset();
-        mDataset.addSeries(mCurrentSeries);
-
-        chartView = ChartFactory.getLineChartView(GraphStats.this, mDataset, mRenderer);
-
-        LinearLayout chartLyt = (LinearLayout)findViewById(R.id.graph);
-        chartLyt.addView(chartView);*/
     }
 
-    /* On récupère les mouvements des doigts
-       Ici la classe sert à verifier si on
-       veut scroll pour changer de graphique
+    /**
+     * On récupère les mouvements des doigts
+     * Ici la classe sert à verifier si on veut scroll pour changer de graphique
      */
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
         @Override
@@ -239,6 +229,9 @@ public class GraphStatsActivity extends Activity {
         }
     }
 
+    /**
+     * Gere la visibilite des fleches sur le cote des graphiques
+     */
     private void updateArrowsVisibility(){
         if(currentChart == 0){
             leftArrow.setVisibility(View.INVISIBLE);
@@ -257,6 +250,12 @@ public class GraphStatsActivity extends Activity {
         }
     }
 
+    /**
+     * Boite de dialogue contenant les choix du filtrage des donnees
+     * Cette boite de dialogue apparait lorsqu'on clique sur le bouton "Caracteristiques"
+     * @param id ID du dialog
+     * @return Boite de dialogue
+     */
     protected Dialog onCreateDialog(int id) {
 
         dialog=new Dialog(GraphStatsActivity.this);
@@ -310,8 +309,15 @@ public class GraphStatsActivity extends Activity {
         return dialog;
     }
 
-    // Modifie les graphiques suivant les nouvelles valeurs
-    // sans changer le numero du graphique courant
+    //
+
+    /**
+     * Modifie les graphiques suivant les nouvelles valeurs sans changer le numero du graphique courant
+     * On appelle la methode creant la requete en fonction des nouvelles caracteristiques
+     * @param club Le club selectionne
+     * @param course Le parcours selectionne
+     * @param date La date selectionnee
+     */
     public void updateGraphicDatas(String club, String course, String date){
 
         List<Shot> list = null;
@@ -341,6 +347,10 @@ public class GraphStatsActivity extends Activity {
             Toast.makeText(getApplicationContext(), Integer.toString(nb)+" tir enregistré", Toast.LENGTH_LONG).show();
     }
 
+    /**
+     * Methode qui change le graphique affiche lorsque l'utilisateur scroll horizontalement
+     * @param index ID du nouveau graphique a afficher
+     */
     public void drawGraphic(int index){
         if(index >= 0 && index < mChart.size()) {
             LinearLayout chartContainer = (LinearLayout) findViewById(R.id.graph);
@@ -351,6 +361,10 @@ public class GraphStatsActivity extends Activity {
         }
     }
 
+    /**
+     * Methode appelee lorsqu'on entre dans le menu Distance
+     * On charge les graphiques et on affiche le graphique d'ID 0
+     */
     public void showDistance(){
         heading_text.setText("Statistiques - Distance");
         distance.setAlpha(1.0f);
@@ -369,6 +383,10 @@ public class GraphStatsActivity extends Activity {
         drawGraphic(currentChart);
     }
 
+    /**
+     * Methode appelee lorsqu'on entre dans le menu Angle (de deviation)
+     * On charge les graphiques et on affiche le graphique d'ID 0
+     */
     public void showAngle(){
         heading_text.setText("Statistiques - Angle");
         angle.setAlpha(1.0f);
@@ -387,6 +405,14 @@ public class GraphStatsActivity extends Activity {
         drawGraphic(currentChart);
     }
 
+    /**
+     * Methode pour la lecture dans la base de donnees
+     * Cette methode s'occupe de creer la requete SQL suivant les parametres
+     * @param club Le club selectionne
+     * @param course Le parcours selectionne
+     * @param date La date selectionnee
+     * @return Liste de tirs/coups
+     */
     public List<Shot> loadShotsFromQuery(String club, String course, String date){
         int tab_size = 0;
         int id_course = -1;
@@ -456,6 +482,11 @@ public class GraphStatsActivity extends Activity {
         return listShots;
     }
 
+    /**
+     * Methode qui cree les graphiques de distance
+     * Utilise la bibliotheque aChartEngine pour dessiner les graphiques
+     * @param listShot Liste de tirs/coups
+     */
     public void loadDistance(List<Shot> listShot){
         String[] shortDistance = {"5", "10", "15", "20", "25", "30", "35", "40", "45", "50"};
         String[] longDistance = {"60", "80", "100", "120", "140", "160", "180", "200", ">200"};
@@ -691,6 +722,11 @@ public class GraphStatsActivity extends Activity {
         mChart.add( ChartFactory.getBarChartView(GraphStatsActivity.this, datasetLong, multiRendererLong, BarChart.Type.DEFAULT) );
     }
 
+    /**
+     * Methode qui cree les graphiques d'angle de deviation
+     * Utilise la bibliotheque aChartEngine pour dessiner les graphiques
+     * @param listShot Liste de tirs/coups
+     */
     public void loadAngle(List<Shot> listShot){
         String[] tabAngles = {"- 60-45", "- 45-30", "- 30-15", "- 15-0", "0-15", "15-30", "30-45", "45-60"};
         int[] angleS = new int[tabAngles.length];

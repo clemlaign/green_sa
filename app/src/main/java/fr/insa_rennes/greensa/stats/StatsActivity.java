@@ -23,17 +23,26 @@ import fr.insa_rennes.greensa.database.CoursesLoader;
 import fr.insa_rennes.greensa.database.controller.ShotDAO;
 import fr.insa_rennes.greensa.database.model.Shot;
 
-/*
-Activité page d'accueil des statistiques
+/**
+ * Cette classe gere la page d'accueil des statistiques
+ * Elle calcule et affiche differentes statistiques "generales"
  */
-
 public class StatsActivity extends Activity {
 
-    public static final float ALPHA_LEVEL = 0.4f; // niveau de transparence pour elements du menu non select.
+    /**
+     * Niveau de transparence pour elements du menu non selectionnes
+     */
+    public static final float ALPHA_LEVEL = 0.4f;
 
+    /**
+     * Boite de dialogue pour la partie settings
+     */
     private Dialog dialog;
 
-    @Override
+    /**
+     * Methode pour faire le lien avec les elements dynamiques et lance l'actualisation des statistiques
+     * @param savedInstanceState
+     */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stats);
@@ -84,19 +93,15 @@ public class StatsActivity extends Activity {
 
         });
 
-        /*ShotDAO sdao = new ShotDAO(this);
-        sdao.open();
-        for(int i=0;i<100;i++){
-            //sdao.ajouter(new Shot(0,0,0, (int)(Math.random()*10), 0, 0, 0, 0, 0, 0, (float)(Math.random()*220), (float)(Math.random()*60 - 30), "", "06-04-2016"));
-            sdao.ajouter(new Shot(0,0,0, (int)(Math.random()*10), 0, 0, 0, 0, 0, 0, (float)(Math.random()*(110-80)+80), (float)(Math.random()*60 - 30), "", "06-04-2016"));
-        }
-*/
-        //sdao.close();
-
         ActualizeStats();
     }
 
-    // Boite de dialogue pour les settings
+    /**
+     * Boite de dialogue pour les settings
+     * Propose a l'utilisateur de supprimer les donnees de la base de donnees
+     * @param id Id de la boite de dialogue (1)
+     * @return La boite de dialogue
+     */
     protected Dialog onCreateDialog(int id) {
 
         dialog=new Dialog(StatsActivity.this);
@@ -152,6 +157,10 @@ public class StatsActivity extends Activity {
         return dialog;
     }
 
+    /**
+     * Methode qui actualise les statistiques sur l'activite StatsActivity
+     * Lecture base de donnees, traitement et affichage
+     */
     public void ActualizeStats(){
         TextView nb_tirs = (TextView)findViewById(R.id.nb_tirs);
         TextView date_lastShot = (TextView)findViewById(R.id.date);

@@ -13,20 +13,35 @@ import java.util.List;
 import fr.insa_rennes.greensa.database.model.Club;
 
 /**
- * Created by Antoine on 31/03/2016.
- * Contient la liste des clubs de golf chargés à partir d'un fichier
+ * Classe pour charger la liste des clubs de golf<br/>
+ *
+ * Cette classe lit un fichier texte contenant les clubs de golf<br/>
+ * Le fichier est disponible dans assets/clubs.txt<br/>
  */
 public class ClubsLoader {
+    /**
+     * Liste des clubs
+     */
     private static List<Club> clubs;
 
     public ClubsLoader() {
 
     }
 
+    /**
+     * Methode qui retourne la liste des clubs recuperes
+     *
+     * @return La liste de clubs
+     */
     public static List<Club> getClubs(){
         return clubs;
     }
 
+    /**
+     * Methode qui sert a savoir si la liste a ete initialisee et l'initialise sinon
+     *
+     * @return TRUE si la liste a ete charge et contient des elements
+     */
     public static boolean isLoaded(){
         if(clubs == null){
             clubs = new ArrayList<Club>(); // on initialise
@@ -36,11 +51,13 @@ public class ClubsLoader {
     }
 
     /**
+     * Methode servant a lire le fichier des clubs<br/>
+     * Chaque ligne du fichier est sous la forme :<br/>
+     * nom_du_club id_club<br/>
      *
-     * @param context
-     * @return
-     *  Lis le fichier des trous (à modifier pour récupérer les infos sous forme de tableau)
-     *  Revoit true si le chargement a fonctionné, false sinon
+     * @param context Le contexte actuel
+     * @param fileName Le nom du fichier contenant les clubs
+     * @return True si le chargement a fonctionne, False sinon
      */
     public static boolean loadClubsFromFile(Context context, String fileName){
         InputStream in = null;
@@ -56,7 +73,7 @@ public class ClubsLoader {
         try {
 
             while((line = reader.readLine()) != null) {
-                String[] tab = line.split(" "); // on sépare la ligne pour récuper les élements
+                String[] tab = line.split(" "); // on separe la ligne pour recuper les elements
                 if(tab.length == 2){
                     String name = tab[0].replace("_", " ");
                     int id = Integer.parseInt(tab[1]);
